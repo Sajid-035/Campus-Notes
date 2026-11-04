@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\Department;
+use App\Models\Department;            
 use App\Models\ResourceItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -11,7 +11,7 @@ class CampusNotesController extends Controller
 {
     private function role(): string { return session('demo_role', 'Student'); }
 
-    public function home() {
+    public function home() {    
         $departments = Department::where('is_active', true)->withCount('resources')->orderBy('name')->get();
         $latest = ResourceItem::with('department')->where('status','approved')->latest()->take(6)->get();
         $stats = [
