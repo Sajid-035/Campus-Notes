@@ -1,0 +1,10 @@
+@extends('campusnotes.layout')
+@section('title',$resource->title)
+@section('content')
+<div class="container py-5"><a href="{{ route('resources.index') }}" class="text-decoration-none">← Back to library</a><div class="row g-4 mt-2">
+<div class="col-lg-8"><div class="detail"><span class="badge text-bg-success">Approved resource</span><h1 class="h2 fw-bold mt-3">{{ $resource->title }}</h1><p class="text-secondary">{{ $resource->subject }} · {{ $resource->subject_code }}</p><hr><h5>About this resource</h5><p>{{ $resource->description }}</p><div class="row g-3 facts">
+<div class="col-sm-6"><small>Department</small><b>{{ $resource->department->name }}</b></div><div class="col-sm-6"><small>Semester</small><b>{{ $resource->semester }}</b></div><div class="col-sm-6"><small>Academic year</small><b>{{ $resource->academic_year ?: 'Not specified' }}</b></div><div class="col-sm-6"><small>Category</small><b>{{ $resource->category }}</b></div><div class="col-sm-6"><small>Uploader</small><b>{{ $resource->uploader_name }}</b></div><div class="col-sm-6"><small>Downloads</small><b>{{ $resource->downloads }}</b></div></div>
+<hr><h5>PDF preview</h5>@if($resource->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($resource->file_path))<iframe class="pdf-preview" src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($resource->file_path) }}"></iframe>@else<div class="empty">Demo sample record — no PDF file was attached.</div>@endif</div></div>
+<div class="col-lg-4"><div class="detail"><h5>Resource actions</h5>@if($resource->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($resource->file_path))<a class="btn btn-primary w-100" href="{{ route('resources.download',$resource) }}">Download PDF</a>@else<button class="btn btn-primary w-100" disabled>Sample PDF unavailable</button>@endif<button class="btn btn-outline-secondary w-100 mt-2" onclick="navigator.clipboard.writeText(location.href).then(()=>alert('Link copied'))">Copy link</button><hr><small class="text-secondary">Uploaded {{ $resource->created_at->format('d M Y') }}</small></div></div>
+</div></div>
+@endsection
