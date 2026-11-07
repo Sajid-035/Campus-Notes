@@ -9,7 +9,7 @@
                 <p>A calmer space for your notes, plans and everyday learning.</p>
             </div>
             <div class="cn-footer-links">
-                <div><strong>Explore</strong><a href="{{ route('frontend.features') }}">Features</a><a href="{{ route('frontend.how-it-works') }}">How it works</a></div>
+                <div><strong>Explore</strong><a href="{{ route('frontend.features') }}">Features</a><a href="{{ route('frontend.how-it-works') }}">How it works</a><a href="{{ route('blog.index') }}">Blog</a></div>
                 <div><strong>Company</strong><a href="{{ route('frontend.about') }}">About us</a><a href="{{ route('frontend.contact') }}">Contact</a></div>
                 <div><strong>Your space</strong><a href="{{ route('login') }}">Login</a><a href="{{ route('register') }}">Create account</a></div>
             </div>
