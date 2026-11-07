@@ -14,6 +14,7 @@
             <a href="{{ route('frontend.features') }}" class="{{ request()->routeIs('frontend.features') ? 'is-active' : '' }}">Features</a>
             <a href="{{ route('frontend.how-it-works') }}" class="{{ request()->routeIs('frontend.how-it-works') ? 'is-active' : '' }}">How it works</a>
             <a href="{{ route('frontend.about') }}" class="{{ request()->routeIs('frontend.about') ? 'is-active' : '' }}">About</a>
+            <a href="{{ route('blog.index') }}" class="{{ request()->routeIs('blog.*') ? 'is-active' : '' }}">Blog</a>
             <a href="{{ route('frontend.contact') }}" class="{{ request()->routeIs('frontend.contact') ? 'is-active' : '' }}">Contact</a>
             <div class="cn-nav-mobile-actions">
                 @auth

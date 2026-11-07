@@ -3,6 +3,17 @@
 <div class="sidebar-brand"><a href="{{ route('dashboard') }}">Campus Notes</a></div>
 <ul class="sidebar-menu">
 <li class="menu-header">Workspace</li>
+@canany(['blog-list','blog-create','blog-edit','blog-delete'])
+<li class="menu-header">Content</li>
+<li class="nav-item dropdown {{ Request::routeIs('admin.blog.*') ? 'active' : '' }}">
+    <a href="#" class="nav-link has-dropdown"><i class="fas fa-newspaper"></i><span>Blog Management</span></a>
+    <ul class="dropdown-menu">
+        @can('blog-list')<li><a class="nav-link" href="{{ route('admin.blog.posts.index') }}">All Posts</a></li>@endcan
+        @can('blog-create')<li><a class="nav-link" href="{{ route('admin.blog.posts.create') }}">Add New Post</a></li>@endcan
+        @can('blog-list')<li><a class="nav-link" href="{{ route('admin.blog.categories.index') }}">Categories</a></li>@endcan
+    </ul>
+</li>
+@endcan
 <li class="nav-item {{ Request::routeIs('dashboard') ? 'active' : '' }}"><a href="{{ route('dashboard') }}" class="nav-link"><i class="fas fa-th-large"></i><span>Dashboard</span></a></li>
 @canany(['user-list','user-create','user-edit','user-delete','role-list','role-create','role-edit','role-delete','manage-permissions'])
 <li class="menu-header">Administration</li>

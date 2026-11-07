@@ -63,3 +63,7 @@ The navigation collapses into an accessible mobile menu on smaller screens. Exis
 
 - The original local `.env` and Git history are not included in this delivery. Configure your own `.env` from `.env.example`.
 - Existing Composer dependencies were retained as supplied; no dependency upgrades were made as part of the frontend integration.
+
+## Blog CMS & SEO
+
+The project includes a responsive public blog, article detail pages and a Stisla admin CMS with categories, tags, scheduled publishing, media uploads and Yoast SEO-style content analysis. Setup, routes and SEO controls are documented in [BLOG_CMS_SETUP.md](BLOG_CMS_SETUP.md). Run `php artisan storage:link` after configuring the database so blog images are publicly accessible.
