@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Frontend\FrontendController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RolePermissionController;
@@ -11,11 +12,19 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
-Route::get('/', function () {
-    return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
+/* Public website pages */
+Route::controller(FrontendController::class)->group(function () {
+    Route::get('/', 'home')->name('frontend.home');
+    Route::get('/features', 'features')->name('frontend.features');
+    Route::get('/how-it-works', 'howItWorks')->name('frontend.how-it-works');
+    Route::get('/about', 'about')->name('frontend.about');
+    Route::get('/contact', 'contact')->name('frontend.contact');
 });
 
-Route::get('/home', [HomeController::class, 'index'])->name('home');
+/* Existing authenticated application home */
+Route::get('/home', [HomeController::class, 'index'])
+    ->middleware('auth')
+    ->name('home');
 
 Route::middleware('auth')->group(function () {
     Route::resource('roles', RoleController::class);
