@@ -37,7 +37,7 @@ Route::get('/home', [HomeController::class, 'index'])
     ->middleware('auth')
     ->name('home');
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function () { 
     /* Blog CMS: existing Spatie blog permissions are reused. */
     Route::prefix('admin/blog')->name('admin.blog.')->group(function () {
         Route::get('/posts', [BlogPostController::class, 'index'])->middleware('can:blog-list')->name('posts.index');
