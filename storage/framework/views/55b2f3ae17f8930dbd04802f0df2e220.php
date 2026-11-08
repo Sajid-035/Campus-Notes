@@ -1,0 +1,24 @@
+<?php $__env->startSection('title', 'Upload a resource'); ?>
+<?php $__env->startSection('content'); ?>
+<div class="container"><div class="subhead"><div class="crumb"><a href="<?php echo e(route('frontend.home')); ?>">Home</a> / Upload resource</div><h1>Share a resource</h1><p class="muted">Upload useful academic material and help other students learn. Every upload is reviewed before publication.</p></div>
+    <div class="card form-card" style="max-width:820px;margin:0 auto 60px">
+        <?php if($errors->any()): ?><div class="flash error">Please correct the highlighted fields and try again.<ul style="margin:8px 0 0"><?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><li><?php echo e($error); ?></li><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?></ul></div><?php endif; ?>
+        <form method="POST" action="<?php echo e(route('resources.store')); ?>" enctype="multipart/form-data"><?php echo csrf_field(); ?>
+            <div class="page-grid" style="grid-template-columns:1fr 1fr;gap:14px;padding:0">
+                <div><label class="field-label">Resource title *</label><input class="field" name="title" value="<?php echo e(old('title')); ?>" required maxlength="220" placeholder="e.g. Data Structures — Class Notes"></div>
+                <div><label class="field-label">Subject *</label><input class="field" name="subject" value="<?php echo e(old('subject')); ?>" required maxlength="180" placeholder="e.g. Data Structures"></div>
+                <div><label class="field-label">Course code</label><input class="field" name="course_code" value="<?php echo e(old('course_code')); ?>" placeholder="e.g. CSE 201"></div>
+                <div><label class="field-label">Department *</label><select class="field" name="department_id" required><option value="">Choose department</option><?php $__currentLoopData = $departments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $department): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><option value="<?php echo e($department->id); ?>" <?php if(old('department_id')==$department->id): echo 'selected'; endif; ?>><?php echo e($department->code); ?> — <?php echo e($department->name); ?></option><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?></select></div>
+                <div><label class="field-label">Semester</label><select class="field" name="semester"><option value="">Choose semester</option><?php for($i=1;$i<=8;$i++): ?><option value="<?php echo e($i); ?>" <?php if(old('semester')==$i): echo 'selected'; endif; ?>>Semester <?php echo e($i); ?></option><?php endfor; ?></select></div>
+                <div><label class="field-label">Resource category *</label><select class="field" name="category" required><option value="">Choose category</option><?php $__currentLoopData = ['Class Notes','Previous Questions','Assignments','Lab Reports','Lecture Slides']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><option <?php if(old('category')===$category): echo 'selected'; endif; ?>><?php echo e($category); ?></option><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?></select></div>
+            </div>
+            <label class="field-label">Description</label><textarea class="field" name="description" rows="5" placeholder="What does this resource cover?"><?php echo e(old('description')); ?></textarea>
+            <label class="field-label">Document file (required to submit for review · PDF, DOC, DOCX, PPT, PPTX · Max 25 MB)</label><input class="field" type="file" name="document" id="document" accept=".pdf,.doc,.docx,.ppt,.pptx"><div class="muted small" id="selectedFileName" style="margin-top:7px">No file selected</div>
+            <div class="flash" style="margin-top:16px">Submitting sends this resource to <strong>Pending</strong> review. You can also save the details as a <strong>Draft</strong> without attaching a file yet. Do not upload copyrighted or personal/confidential material without permission.</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px"><button class="btn primary" name="action" value="submit">Submit for review →</button><button class="btn outline" name="action" value="save_draft">Save as draft</button></div>
+        </form>
+    </div>
+</div>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Applications/XAMPP/xamppfiles/htdocs/Campus-Notes/resources/views/frontend/resources/upload.blade.php ENDPATH**/ ?>

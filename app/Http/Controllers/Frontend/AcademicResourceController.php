@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\AcademicDepartment;
 use App\Models\AcademicResource;
 use App\Models\ResourceReview;
+use App\Models\StudentDownload;
+use App\Models\StudentPointTransaction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -107,17 +109,41 @@ class AcademicResourceController extends Controller
             return back()->with('error', 'A downloadable file has not been attached to this demo resource yet.');
         }
         $resource->increment('downloads_count');
+        if (auth()->check()) {
+            StudentDownload::create([
+                'user_id' => auth()->id(),
+                'academic_resource_id' => $resource->id,
+                'downloaded_at' => now(),
+            ]);
+        }
+        if ($resource->uploader_id) {
+            StudentPointTransaction::create([
+                'user_id' => $resource->uploader_id,
+                'points' => 1,
+                'source_type' => 'resource_download',
+                'source_id' => $resource->id,
+                'description' => 'A student downloaded: ' . $resource->title,
+            ]);
+        }
         return Storage::disk('public')->download($resource->file_path, $resource->file_name ?: basename($resource->file_path));
     }
 
-    public function uploadForm(): View
+    public function uploadForm(): View|RedirectResponse
     {
+        abort_unless(auth()->check(), 403);
+        if (auth()->user()->account_status !== 'approved') {
+            return redirect()->route('student.application-status');
+        }
         $departments = AcademicDepartment::where('is_active', true)->orderBy('name')->get();
         return view('frontend.resources.upload', compact('departments'));
     }
 
     public function store(Request $request): RedirectResponse
     {
+        if ($request->user()->account_status !== 'approved') {
+            return redirect()->route('student.application-status');
+        }
+        $isDraft = $request->input('action') === 'save_draft';
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:220'],
             'subject' => ['required', 'string', 'max:180'],
@@ -126,11 +152,11 @@ class AcademicResourceController extends Controller
             'semester' => ['nullable', 'integer', 'min:1', 'max:20'],
             'category' => ['required', 'in:Class Notes,Previous Questions,Assignments,Lab Reports,Lecture Slides'],
             'description' => ['nullable', 'string', 'max:10000'],
-            'document' => ['required', 'file', 'mimes:pdf,doc,docx,ppt,pptx', 'max:25600'],
+            'document' => [$isDraft ? 'nullable' : 'required', 'file', 'mimes:pdf,doc,docx,ppt,pptx', 'max:25600'],
         ]);
 
         $file = $request->file('document');
-        $path = $file->store('academic-resources', 'public');
+        $path = $file ? $file->store('academic-resources', 'public') : null;
         $slugBase = Str::slug($validated['title']);
         $slug = $slugBase . '-' . Str::lower(Str::random(6));
 
@@ -146,18 +172,23 @@ class AcademicResourceController extends Controller
             'category' => $validated['category'],
             'description' => $validated['description'] ?? null,
             'file_path' => $path,
-            'file_name' => $file->getClientOriginalName(),
-            'mime_type' => $file->getClientMimeType(),
-            'file_size' => $file->getSize(),
-            'status' => 'pending',
+            'file_name' => $file?->getClientOriginalName(),
+            'mime_type' => $file?->getClientMimeType(),
+            'file_size' => $file?->getSize(),
+            'status' => $isDraft ? 'draft' : 'pending',
         ]);
 
-        return redirect()->route('student.dashboard')->with('success', 'Your resource has been submitted and is waiting for moderator approval.');
+        return $isDraft
+            ? redirect()->route('student.resources', ['status' => 'draft'])->with('success', 'Your resource draft has been saved.')
+            : redirect()->route('student.dashboard')->with('success', 'Your resource has been submitted and is waiting for moderator approval.');
     }
 
     public function bookmark(AcademicResource $resource): RedirectResponse
     {
         abort_unless($resource->status === 'approved', 404);
+        if (request()->user()->account_status !== 'approved') {
+            return redirect()->route('student.application-status');
+        }
         $user = request()->user();
         $user->bookmarkedResources()->toggle($resource->id);
         return back()->with('success', 'Your bookmark list has been updated.');
@@ -166,6 +197,9 @@ class AcademicResourceController extends Controller
     public function review(Request $request, AcademicResource $resource): RedirectResponse
     {
         abort_unless($resource->status === 'approved', 404);
+        if ($request->user()->account_status !== 'approved') {
+            return redirect()->route('student.application-status');
+        }
         $validated = $request->validate([
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
             'comment' => ['nullable', 'string', 'max:2000'],

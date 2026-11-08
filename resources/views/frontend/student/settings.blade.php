@@ -1,0 +1,10 @@
+@extends('frontend.student.layouts.panel')
+@section('title', 'Account Settings')
+@section('panel-content')
+<div class="student-page-heading"><div><span class="student-kicker">ACCOUNT</span><h1>Account Settings</h1><p>Update your login email, password and privacy preferences.</p></div></div>
+<div class="card form-card student-settings-card"><form method="POST" action="{{ route('student.settings.update') }}">@csrf @method('PUT') @if($errors->any())<div class="flash error">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
+    <section id="email"><h3>Login & Security</h3><label class="field-label">Email Address *</label><input class="field" type="email" name="email" required value="{{ old('email',$user->email) }}"><p class="muted small">Changing your email will reset its verification status.</p><div id="password"></div><label class="field-label">Current Password (required to change password)</label><input class="field" type="password" name="current_password" autocomplete="current-password"><label class="field-label">New Password</label><input class="field" type="password" name="password" autocomplete="new-password"><label class="field-label">Confirm New Password</label><input class="field" type="password" name="password_confirmation" autocomplete="new-password"></section>
+    <section id="privacy" class="student-settings-privacy"><h3>Privacy Preferences</h3><label class="student-setting-toggle"><span><strong>Public Student Profile</strong><small>Allow other CampusNotes members to view your public profile information.</small></span><input type="checkbox" name="profile_public" value="1" @checked($user->profile_public)></label><label class="student-setting-toggle"><span><strong>Show on Leaderboard</strong><small>Display your name and points in the student leaderboard.</small></span><input type="checkbox" name="show_in_leaderboard" value="1" @checked($user->show_in_leaderboard)></label></section>
+    <button class="btn primary">Save Settings</button>
+</form></div>
+@endsection

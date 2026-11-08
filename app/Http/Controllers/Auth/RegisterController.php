@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcademicDepartment;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
@@ -10,63 +11,54 @@ use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
-
     use RegistersUsers;
 
-    /**
-     * Where to redirect users after registration.
-     *
-     * @var string
-     */
     protected $redirectTo = '/home';
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('guest');
     }
 
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
+    public function showRegistrationForm()
+    {
+        $departments = AcademicDepartment::where('is_active', true)->orderBy('name')->get();
+        return view('auth.register', compact('departments'));
+    }
+
     protected function validator(array $data)
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:190', 'unique:users'],
+            'institution_name' => ['required', 'string', 'max:190'],
+            'academic_department_id' => ['required', 'exists:academic_departments,id'],
+            'student_batch' => ['required', 'string', 'max:30'],
+            'semester' => ['required', 'integer', 'min:1', 'max:20'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
     }
 
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return \App\Models\User
-     */
     protected function create(array $data)
     {
-        return User::create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'institution_name' => $data['institution_name'],
+            'academic_department_id' => $data['academic_department_id'],
+            'student_batch' => $data['student_batch'],
+            'semester' => $data['semester'],
+            'account_status' => 'pending',
+            'application_submitted_at' => now(),
         ]);
+
+        $identity = str_pad((string) $user->id, 5, '0', STR_PAD_LEFT);
+        $user->update([
+            'student_id' => 'CN-' . now()->format('Y') . '-' . $identity,
+            'application_number' => 'APP-' . now()->format('Y') . '-' . $identity,
+        ]);
+
+        return $user;
     }
 }

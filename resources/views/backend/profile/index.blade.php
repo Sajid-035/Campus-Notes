@@ -11,6 +11,7 @@
                 @if(session('success'))
                     <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
+                @if($errors->any())<div class="alert alert-danger">Please check the form errors below.</div>@endif
 
                 <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
                     @csrf
@@ -38,9 +39,11 @@
 
                     <div class="form-group">
                         <label>Avatar</label>
-                        <input type="file" name="avatar" class="form-control-file">
-                        @if($user->avatar)
-                            <img src="{{ asset('uploads/avatars/'.$user->avatar) }}" width="120" class="mt-2">
+                        <input type="file" name="avatar" class="form-control-file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+                        <small class="form-text text-muted">JPG, PNG or WebP, maximum 5 MB.</small>
+                        @error('avatar')<div class="text-danger small">{{ $message }}</div>@enderror
+                        @if($user->avatar_url)
+                            <img src="{{ $user->avatar_url }}" width="120" height="120" style="object-fit:cover;border-radius:50%" class="mt-2" alt="Current profile photo">
                         @endif
                     </div>
 

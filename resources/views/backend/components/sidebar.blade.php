@@ -28,7 +28,7 @@
 <li class="nav-item {{ Request::routeIs('dashboard') ? 'active' : '' }}"><a href="{{ route('dashboard') }}" class="nav-link"><i class="fas fa-th-large"></i><span>Dashboard</span></a></li>
 @canany(['user-list','user-create','user-edit','user-delete','role-list','role-create','role-edit','role-delete','manage-permissions'])
 <li class="menu-header">Administration</li>
-<li class="nav-item dropdown {{ Request::routeIs('users.*') || Request::routeIs('roles.*') || Request::routeIs('manage_permissions') ? 'active' : '' }}">
+<li class="nav-item dropdown {{ Request::routeIs('users.*') || Request::routeIs('roles.*') || Request::routeIs('manage_permissions') || Request::routeIs('admin.student-applications.*') ? 'active' : '' }}">
 <a href="#" class="nav-link has-dropdown"><i class="fas fa-users"></i><span>User Management</span></a>
 <ul class="dropdown-menu">
 @canany(['user-list','user-create'])
@@ -36,6 +36,7 @@
 @can('user-create')<li><a class="nav-link" href="{{ route('users.create') }}">Add User</a></li>@endcan
 <li><a class="nav-link" href="{{ route('users.index') }}">User List</a></li>
 @endcan
+@can('user-list')<li><a class="nav-link" href="{{ route('admin.student-applications.index') }}">Student Applications</a></li>@endcan
 @canany(['role-list','role-create'])
 <li class="dropdown-header">Roles</li>
 @can('role-create')<li><a class="nav-link" href="{{ route('roles.create') }}">Add Role</a></li>@endcan

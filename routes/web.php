@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AcademicResourceController as AdminAcademicResourceController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\StudentApprovalController;
 use App\Http\Controllers\Frontend\AcademicResourceController;
 use App\Http\Controllers\Frontend\ContactController;
 use App\Http\Controllers\Frontend\FrontendController;
@@ -54,10 +55,33 @@ Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/category/{slug}', [BlogController::class, 'category'])->name('blog.category');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
-/* Student workspace */
+/* Student workspace — separate route for each dashboard menu and submenu. */
 Route::middleware('auth')->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
+    Route::get('/application-status', [StudentController::class, 'applicationStatus'])->name('application-status');
+    Route::post('/verification-details', [StudentController::class, 'submitVerificationDetails'])->name('verification-details');
+    Route::get('/profile', [StudentController::class, 'profile'])->name('profile');
+    Route::get('/profile/edit', [StudentController::class, 'editProfile'])->name('profile.edit');
+    Route::put('/profile', [StudentController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/id-card', [StudentController::class, 'idCard'])->name('id-card');
+    Route::get('/resources/{status?}', [StudentController::class, 'resources'])->name('resources');
+    Route::get('/upload-history', [StudentController::class, 'uploadHistory'])->name('upload-history');
     Route::get('/bookmarks', [StudentController::class, 'bookmarks'])->name('bookmarks');
+    Route::get('/downloads', [StudentController::class, 'downloads'])->name('downloads');
+    Route::get('/reviews', [StudentController::class, 'reviews'])->name('reviews');
+    Route::get('/community', [StudentController::class, 'community'])->name('community');
+    Route::get('/community/my-questions', [StudentController::class, 'myQuestions'])->name('community.questions');
+    Route::get('/community/my-replies', [StudentController::class, 'myReplies'])->name('community.replies');
+    Route::post('/community/discussions', [StudentController::class, 'storeDiscussion'])->name('community.discussions.store');
+    Route::post('/community/discussions/{discussion}/replies', [StudentController::class, 'storeReply'])->name('community.replies.store');
+    Route::get('/points', [StudentController::class, 'points'])->name('points');
+    Route::get('/notifications', [StudentController::class, 'notifications'])->name('notifications');
+    Route::post('/notifications/read-all', [StudentController::class, 'markAllNotificationsRead'])->name('notifications.read-all');
+    Route::post('/notifications/{notification}/read', [StudentController::class, 'markNotificationRead'])->name('notifications.read');
+    Route::get('/settings', [StudentController::class, 'settings'])->name('settings');
+    Route::put('/settings', [StudentController::class, 'updateSettings'])->name('settings.update');
+    Route::get('/support', [StudentController::class, 'support'])->name('support');
+    Route::post('/support', [StudentController::class, 'storeSupport'])->name('support.store');
 });
 
 /* Existing authenticated application home (admin workspace or student dashboard) */
@@ -68,7 +92,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/posts', [BlogPostController::class, 'index'])->middleware('can:blog-list')->name('posts.index');
         Route::get('/posts/create', [BlogPostController::class, 'create'])->middleware('can:blog-create')->name('posts.create');
         Route::post('/posts', [BlogPostController::class, 'store'])->middleware('can:blog-create')->name('posts.store');
-        Route::post('/upload-inline-image', [BlogPostController::class, 'uploadInlineImage'])->name('upload-inline-image');
+        Route::post('/upload-inline-image', [BlogPostController::class, 'uploadInlineImage'])->middleware('can:blog-create')->name('upload-inline-image');
         Route::get('/posts/{post}/edit', [BlogPostController::class, 'edit'])->middleware('can:blog-edit')->name('posts.edit');
         Route::put('/posts/{post}', [BlogPostController::class, 'update'])->middleware('can:blog-edit')->name('posts.update');
         Route::delete('/posts/{post}', [BlogPostController::class, 'destroy'])->middleware('can:blog-delete')->name('posts.destroy');
@@ -92,22 +116,27 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{resource}', [AdminAcademicResourceController::class, 'destroy'])->middleware('can:resources-delete')->name('destroy');
     });
 
+    Route::prefix('admin/student-applications')->name('admin.student-applications.')->group(function () {
+        Route::get('/', [StudentApprovalController::class, 'index'])->middleware('can:user-list')->name('index');
+        Route::put('/{user}/status', [StudentApprovalController::class, 'updateStatus'])->middleware('can:user-edit')->name('status');
+    });
+
     Route::resource('roles', RoleController::class);
     Route::resource('users', UserController::class);
 
     Route::prefix('admin')->group(function () {
-        Route::get('manage-permissions', [RolePermissionController::class, 'managePermissions'])->name('manage_permissions');
-        Route::get('roles/{role}/permissions', [RolePermissionController::class, 'getPermissions'])->name('get_permissions');
-        Route::post('roles/{role}/permissions', [RolePermissionController::class, 'updatePermissions'])->name('update_permissions');
-        Route::prefix('dashboard')->group(function () {
+        Route::get('manage-permissions', [RolePermissionController::class, 'managePermissions'])->middleware('can:manage-permissions')->name('manage_permissions');
+        Route::get('roles/{role}/permissions', [RolePermissionController::class, 'getPermissions'])->middleware('can:manage-permissions')->name('get_permissions');
+        Route::post('roles/{role}/permissions', [RolePermissionController::class, 'updatePermissions'])->middleware('can:manage-permissions')->name('update_permissions');
+        Route::prefix('dashboard')->middleware('can:dashboard-access')->group(function () {
             Route::get('/', [TodoController::class, 'index'])->name('dashboard');
             Route::post('/', [TodoController::class, 'store'])->name('todo.store');
             Route::get('/{id}/edit', [TodoController::class, 'edit'])->name('todo.edit');
             Route::put('/{id}', [TodoController::class, 'update'])->name('todo.update');
             Route::delete('/{id}', [TodoController::class, 'destroy'])->name('todo.destroy');
         });
-        Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
-        Route::get('settings', [ProfileController::class, 'settings'])->name('settings.index');
-        Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::get('profile', [ProfileController::class, 'show'])->middleware('can:view-profile')->name('profile.show');
+        Route::get('settings', [ProfileController::class, 'settings'])->middleware('can:view-settings')->name('settings.index');
+        Route::put('profile', [ProfileController::class, 'update'])->middleware('can:view-profile')->name('profile.update');
     });
 });
