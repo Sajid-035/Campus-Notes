@@ -1,0 +1,9 @@
+<footer class="main-footer">
+    <div class="footer-left">
+        Copyright &copy; 2025 <div class="bullet"></div><a href="">Sultanul Arifine</a>
+    </div>
+    <div class="footer-right">
+        2.3.0
+    </div>
+</footer>
+<?php /**PATH C:\xampp\htdocs\Campus-Notes\resources\views/backend/components/footer.blade.php ENDPATH**/ ?>
