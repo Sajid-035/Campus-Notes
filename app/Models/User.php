@@ -23,7 +23,12 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'avatar',
         'password',
+        'student_id', 'application_number', 'institution_name', 'academic_department_id',
+        'student_batch', 'semester', 'account_status', 'application_submitted_at',
+        'rejection_reason', 'verification_note', 'verified_at', 'phone', 'profile_bio',
+        'profile_public', 'show_in_leaderboard',
     ];
 
     /**
@@ -41,6 +46,28 @@ class User extends Authenticatable
      *
      * @var array<string, string>
      */
+    /**
+     * Public URL for the user's uploaded profile image.
+     * Existing records store only the filename in users.avatar.
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (blank($this->avatar)) {
+            return null;
+        }
+
+        $path = ltrim((string) $this->avatar, '/');
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
+        if (!str_starts_with($path, 'uploads/')) {
+            $path = 'uploads/avatars/' . $path;
+        }
+
+        return asset($path);
+    }
+
     public function academicResources(): HasMany
     {
         return $this->hasMany(AcademicResource::class, 'uploader_id');
@@ -51,9 +78,38 @@ class User extends Authenticatable
         return $this->belongsToMany(AcademicResource::class, 'resource_bookmarks', 'user_id', 'academic_resource_id')->withTimestamps();
     }
 
+    public function academicDepartment()
+    {
+        return $this->belongsTo(AcademicDepartment::class, 'academic_department_id');
+    }
+
+    public function studentDownloads(): HasMany
+    {
+        return $this->hasMany(StudentDownload::class);
+    }
+
+    public function pointTransactions(): HasMany
+    {
+        return $this->hasMany(StudentPointTransaction::class);
+    }
+
+    public function studentNotifications(): HasMany
+    {
+        return $this->hasMany(StudentNotification::class);
+    }
+
+    public function discussions(): HasMany
+    {
+        return $this->hasMany(StudentDiscussion::class);
+    }
+
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'application_submitted_at' => 'datetime',
+        'verified_at' => 'datetime',
+        'profile_public' => 'boolean',
+        'show_in_leaderboard' => 'boolean',
     ];
     
 }

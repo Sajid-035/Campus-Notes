@@ -31,7 +31,7 @@ class ProfileController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            'avatar' => ['nullable', 'file', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
         ]);
 
         $user->name = $data['name'];
@@ -42,14 +42,26 @@ class ProfileController extends Controller
         }
 
         if ($request->hasFile('avatar')) {
-            File::ensureDirectoryExists(public_path('uploads/avatars'));
-            if ($user->avatar && is_file(public_path('uploads/avatars/' . $user->avatar))) {
-                @unlink(public_path('uploads/avatars/' . $user->avatar));
-            }
             $file = $request->file('avatar');
-            $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/avatars'), $filename);
+            if (!$file->isValid()) {
+                return back()->withErrors(['avatar' => 'The profile image could not be uploaded. Please choose it again.'])->withInput();
+            }
+
+            $avatarDirectory = public_path('uploads/avatars');
+            File::ensureDirectoryExists($avatarDirectory);
+            $filename = Str::uuid() . '.' . strtolower($file->extension() ?: $file->getClientOriginalExtension());
+            $file->move($avatarDirectory, $filename);
+
+            if (!is_file($avatarDirectory . DIRECTORY_SEPARATOR . $filename)) {
+                return back()->withErrors(['avatar' => 'Could not save the image. Check write permission for public/uploads/avatars.'])->withInput();
+            }
+
+            $oldAvatar = $user->avatar;
             $user->avatar = $filename;
+            $oldAvatarFilename = $oldAvatar ? basename(str_replace('\\', '/', $oldAvatar)) : null;
+            if ($oldAvatarFilename && $oldAvatarFilename !== $filename && is_file($avatarDirectory . DIRECTORY_SEPARATOR . $oldAvatarFilename)) {
+                @unlink($avatarDirectory . DIRECTORY_SEPARATOR . $oldAvatarFilename);
+            }
         }
 
         $user->save();

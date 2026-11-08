@@ -1,0 +1,6 @@
+@extends('frontend.student.layouts.panel')
+@section('title', 'Help & Support')
+@section('panel-content')
+<div class="student-page-heading"><div><span class="student-kicker">WE ARE HERE TO HELP</span><h1>Help & Support</h1><p>Send a message to the CampusNotes admin team.</p></div><a class="btn outline" href="{{ route('frontend.faq') }}">Read FAQ →</a></div>
+<div class="student-support-grid"><div class="card form-card"><h3>Contact Admin</h3><form method="POST" action="{{ route('student.support.store') }}">@csrf<label class="field-label">Subject *</label><input class="field" name="subject" required maxlength="200" placeholder="How can we help?"><label class="field-label">Message *</label><textarea class="field" name="message" rows="7" required maxlength="5000" placeholder="Describe your issue or question..."></textarea><button class="btn primary">Send Support Request</button></form></div><div class="card student-support-info"><div class="stat-icon">?</div><h3>Need quick help?</h3><p class="muted">Check our frequently asked questions for guidance about uploads, approval status, downloads and your student account.</p><a class="btn outline" href="{{ route('frontend.faq') }}">Browse FAQ</a><hr><strong>Application / Account Issues</strong><p class="muted small">Include your Student ID or Application Number when contacting the team.</p></div></div>
+@endsection

@@ -14,9 +14,9 @@
                 <div><label class="field-label">Resource category *</label><select class="field" name="category" required><option value="">Choose category</option>@foreach(['Class Notes','Previous Questions','Assignments','Lab Reports','Lecture Slides'] as $category)<option @selected(old('category')===$category)>{{ $category }}</option>@endforeach</select></div>
             </div>
             <label class="field-label">Description</label><textarea class="field" name="description" rows="5" placeholder="What does this resource cover?">{{ old('description') }}</textarea>
-            <label class="field-label">Document file * (PDF, DOC, DOCX, PPT, PPTX · Max 25 MB)</label><input class="field" type="file" name="document" id="document" accept=".pdf,.doc,.docx,.ppt,.pptx" required><div class="muted small" id="selectedFileName" style="margin-top:7px">No file selected</div>
-            <div class="flash" style="margin-top:16px">Your upload will be saved as <strong>Pending</strong> until a moderator reviews it. Do not upload copyrighted or personal/confidential material without permission.</div>
-            <button class="btn primary" style="margin-top:8px">Submit for review →</button>
+            <label class="field-label">Document file (required to submit for review · PDF, DOC, DOCX, PPT, PPTX · Max 25 MB)</label><input class="field" type="file" name="document" id="document" accept=".pdf,.doc,.docx,.ppt,.pptx"><div class="muted small" id="selectedFileName" style="margin-top:7px">No file selected</div>
+            <div class="flash" style="margin-top:16px">Submitting sends this resource to <strong>Pending</strong> review. You can also save the details as a <strong>Draft</strong> without attaching a file yet. Do not upload copyrighted or personal/confidential material without permission.</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px"><button class="btn primary" name="action" value="submit">Submit for review →</button><button class="btn outline" name="action" value="save_draft">Save as draft</button></div>
         </form>
     </div>
 </div>

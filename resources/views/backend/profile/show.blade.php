@@ -16,7 +16,7 @@
 
                     <div class="row">
                         <div class="col-md-4 text-center">
-                            <img src="{{ $user->avatar ? asset('uploads/avatars/' . $user->avatar) : asset('backend/img/avatar/avatar-1.png') }}"
+                            <img src="{{ $user->avatar_url ?: asset('backend/img/avatar/avatar-1.png') }}"
                                 alt="Avatar" class="img-fluid rounded-circle mb-2" style="width:150px;height:150px;">
                         </div>
                         <div class="col-md-8">

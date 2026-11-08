@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AcademicResource;
+use App\Models\StudentPointTransaction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -29,6 +30,17 @@ class AcademicResourceController extends Controller
             'approved_at' => now(),
             'moderation_note' => null,
         ]);
+        if ($resource->uploader_id) {
+            StudentPointTransaction::firstOrCreate(
+                ['user_id' => $resource->uploader_id, 'source_type' => 'resource_approved', 'source_id' => $resource->id],
+                ['points' => 40, 'description' => 'Resource approved: ' . $resource->title]
+            );
+            $resource->uploader?->studentNotifications()->create([
+                'title' => 'Resource approved',
+                'message' => 'Your resource "' . $resource->title . '" has been approved and published.',
+                'type' => 'success',
+            ]);
+        }
         return back()->with('success', 'Resource approved and published.');
     }
 
@@ -36,6 +48,11 @@ class AcademicResourceController extends Controller
     {
         $data = $request->validate(['moderation_note' => ['nullable', 'string', 'max:2000']]);
         $resource->update(['status' => 'rejected', 'moderation_note' => $data['moderation_note'] ?? null]);
+        $resource->uploader?->studentNotifications()->create([
+            'title' => 'Resource update required',
+            'message' => 'Your resource "' . $resource->title . '" was not approved. ' . ($data['moderation_note'] ?? 'Please review the resource and contact support if you have questions.'),
+            'type' => 'warning',
+        ]);
         return back()->with('success', 'Resource was rejected.');
     }
 
