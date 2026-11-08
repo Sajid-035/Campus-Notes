@@ -3,6 +3,17 @@
 <div class="sidebar-brand"><a href="{{ route('dashboard') }}">Campus Notes</a></div>
 <ul class="sidebar-menu">
 <li class="menu-header">Workspace</li>
+@canany(['contact-messages-list','contact-messages-update','contact-messages-delete'])
+<li class="nav-item {{ Request::routeIs('admin.contact-messages.*') ? 'active' : '' }}">
+    <a href="{{ route('admin.contact-messages.index') }}" class="nav-link"><i class="fas fa-envelope"></i><span>Contact Inbox</span></a>
+</li>
+@endcan
+@canany(['resources-list','resources-approve','resources-delete'])
+<li class="menu-header">Academic Library</li>
+<li class="nav-item {{ Request::routeIs('admin.resources.*') ? 'active' : '' }}">
+    <a href="{{ route('admin.resources.index') }}" class="nav-link"><i class="fas fa-book-open"></i><span>Resource Moderation</span></a>
+</li>
+@endcan
 @canany(['blog-list','blog-create','blog-edit','blog-delete'])
 <li class="menu-header">Content</li>
 <li class="nav-item dropdown {{ Request::routeIs('admin.blog.*') ? 'active' : '' }}">

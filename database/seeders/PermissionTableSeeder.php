@@ -16,6 +16,8 @@ class PermissionTableSeeder extends Seeder
 
             // ===== Dashboard =====
             'dashboard-access',
+            'view-profile',
+            'view-settings',
            
             // ===== User Permissions =====
             'user-list',
@@ -35,6 +37,16 @@ class PermissionTableSeeder extends Seeder
             'blog-create',
             'blog-edit',
             'blog-delete',
+
+            // ===== Academic Resource Moderation =====
+            'resources-list',
+            'resources-approve',
+            'resources-delete',
+
+            // ===== Contact Inbox =====
+            'contact-messages-list',
+            'contact-messages-update',
+            'contact-messages-delete',
         ];
 
         foreach ($permissions as $permission) {

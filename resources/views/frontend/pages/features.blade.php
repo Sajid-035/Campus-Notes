@@ -1,14 +1,14 @@
 @extends('frontend.layouts.app')
-@section('title', 'Features')
+@section('title', 'CampusNotes features')
 @section('content')
-<section class="cn-page-hero"><div class="cn-container"><div class="cn-eyebrow">THOUGHTFUL TOOLS, CLEARER DAYS</div><h1>Everything has a place.<br><span>So can your ideas.</span></h1><p>Campus Notes is designed around the small things that make learning feel more organized: capturing ideas, keeping track of tasks and finding your focus.</p><div class="cn-breadcrumb"><a href="{{ route('frontend.home') }}">Home</a><span>/</span> Features</div></div></section>
-<section class="cn-section cn-section-spacious cn-page-body"><div class="cn-container"><div class="cn-feature-grid cn-feature-grid-page">
-    <article class="cn-feature-card cn-feature-card-large"><div class="cn-feature-icon cn-icon-purple">✎</div><h3>Quick notes, whenever inspiration strikes</h3><p>Save the key points from a lecture, an idea from a conversation or a reminder you do not want to lose. Keep your thinking moving without overcomplicating the process.</p><span class="cn-card-number">01</span></article>
-    <article class="cn-feature-card cn-feature-card-large"><div class="cn-feature-icon cn-icon-blue">▦</div><h3>A more organized study space</h3><p>Bring your learning material into a structure that makes sense to you. Spend less time wondering where something belongs and more time using it.</p><span class="cn-card-number">02</span></article>
-    <article class="cn-feature-card cn-feature-card-large"><div class="cn-feature-icon cn-icon-green">✓</div><h3>Simple task planning</h3><p>Turn your to-dos into clear next steps. Keep an eye on upcoming work and make steady progress, one manageable task at a time.</p><span class="cn-card-number">03</span></article>
-    <article class="cn-feature-card cn-feature-card-large"><div class="cn-feature-icon cn-icon-orange">⌕</div><h3>A calmer way to find your flow</h3><p>A clean, focused interface keeps distractions low and puts your study routine front and center.</p><span class="cn-card-number">04</span></article>
-    <article class="cn-feature-card cn-feature-card-large"><div class="cn-feature-icon cn-icon-pink">◎</div><h3>Your space, your pace</h3><p>Build a personal workflow that fits the way you learn. Start simple and shape your routine as you go.</p><span class="cn-card-number">05</span></article>
-    <article class="cn-feature-card cn-feature-card-large"><div class="cn-feature-icon cn-icon-indigo">⌘</div><h3>Access from your devices</h3><p>Use a responsive interface designed to feel comfortable on desktop, tablet and mobile screens.</p><span class="cn-card-number">06</span></article>
-</div></div></section>
-<section class="cn-cta-section cn-cta-section-compact"><div class="cn-container"><div class="cn-cta-card"><div><div class="cn-eyebrow cn-eyebrow-light">START WITH ONE SMALL STEP</div><h2>Give your ideas a home.</h2><p>Set up your space and make the next study session count.</p></div><a href="{{ route('register') }}" class="cn-button cn-button-white">Create your account <span>→</span></a><span class="cn-cta-decoration cn-cta-decoration-one"></span><span class="cn-cta-decoration cn-cta-decoration-two"></span></div></div></section>
+<div class="container"><div class="subhead"><div class="crumb"><a href="{{ route('frontend.home') }}">Home</a> / Features</div><span class="eyebrow">BUILT FOR STUDENTS</span><h1>Everything you need to study smarter.</h1><p class="muted">A practical academic library with discovery, sharing and personal study tools in one place.</p></div>
+    <div class="page-grid">
+        <article class="card info-tile"><div class="stat-icon">⌕</div><h3>Smart resource search</h3><p>Search by title, subject or course code and narrow results by department, semester, category and verification status.</p></article>
+        <article class="card info-tile"><div class="stat-icon">▤</div><h3>Academic resource library</h3><p>Browse class notes, previous questions, assignments, lab reports and lecture slides.</p></article>
+        <article class="card info-tile"><div class="stat-icon">▣</div><h3>Document preview</h3><p>Open approved PDF documents in the browser, review resource information and download files.</p></article>
+        <article class="card info-tile"><div class="stat-icon">☆</div><h3>Bookmarks and reviews</h3><p>Save resources to your personal list and share feedback through student ratings and comments.</p></article>
+        <article class="card info-tile"><div class="stat-icon">♙</div><h3>Student dashboard</h3><p>Follow your uploads, approvals, downloads, saved resources and contribution activity.</p></article>
+        <article class="card info-tile"><div class="stat-icon">✓</div><h3>Moderated publishing</h3><p>New contributions are reviewed before publishing, helping the library stay useful and trustworthy.</p></article>
+    </div>
+</div>
 @endsection
