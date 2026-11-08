@@ -1,39 +1,41 @@
-<header class="cn-header">
-    <div class="cn-container cn-nav-wrap">
-        <a class="cn-brand" href="{{ route('frontend.home') }}" aria-label="Campus Notes home">
-            <span class="cn-brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4.75A2.75 2.75 0 0 1 7.75 2H20v16.5H7.75A2.75 2.75 0 0 0 5 21.25V4.75Z"/><path d="M5 5v16.25M9 6h7M9 10h7"/></svg></span>
-            <span>Campus<span class="cn-brand-light">Notes</span></span>
-        </a>
-
-        <button class="cn-menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="cn-primary-nav">
-            <span></span><span></span><span></span>
-        </button>
-
-        <nav class="cn-nav" id="cn-primary-nav" aria-label="Main navigation">
-            <a href="{{ route('frontend.home') }}" class="{{ request()->routeIs('frontend.home') ? 'is-active' : '' }}">Home</a>
-            <a href="{{ route('frontend.features') }}" class="{{ request()->routeIs('frontend.features') ? 'is-active' : '' }}">Features</a>
-            <a href="{{ route('frontend.how-it-works') }}" class="{{ request()->routeIs('frontend.how-it-works') ? 'is-active' : '' }}">How it works</a>
-            <a href="{{ route('frontend.about') }}" class="{{ request()->routeIs('frontend.about') ? 'is-active' : '' }}">About</a>
-            <a href="{{ route('blog.index') }}" class="{{ request()->routeIs('blog.*') ? 'is-active' : '' }}">Blog</a>
-            <a href="{{ route('frontend.contact') }}" class="{{ request()->routeIs('frontend.contact') ? 'is-active' : '' }}">Contact</a>
-            <div class="cn-nav-mobile-actions">
-                @auth
-                    <a class="cn-button cn-button-primary" href="{{ route('dashboard') }}">Open workspace <span aria-hidden="true">↗</span></a>
-                @else
-                    <a class="cn-login-link" href="{{ route('login') }}">Login</a>
-                    <a class="cn-button cn-button-primary" href="{{ route('register') }}">Get started <span aria-hidden="true">↗</span></a>
-                @endauth
+<header class="topbar">
+    <div class="container navrow">
+        <a class="brand" href="{{ route('frontend.home') }}"><span class="logo">C</span>CampusNotes</a>
+        <nav class="navlinks" id="navlinks" aria-label="Primary navigation">
+            <a href="{{ route('frontend.home') }}" class="{{ request()->routeIs('frontend.home') ? 'active' : '' }}">Home</a>
+            <a href="{{ route('resources.index') }}" class="{{ request()->routeIs('resources.*') || request()->routeIs('departments.show') ? 'active' : '' }}">Browse</a>
+            <a href="{{ route('departments.index') }}" class="{{ request()->routeIs('departments.*') ? 'active' : '' }}">Departments</a>
+            <a href="{{ route('questions.index') }}" class="{{ request()->routeIs('questions.*') ? 'active' : '' }}">Questions</a>
+            <a href="{{ route('assignments.index') }}" class="{{ request()->routeIs('assignments.*') ? 'active' : '' }}">Assignments</a>
+            <a href="{{ route('frontend.community') }}" class="{{ request()->routeIs('frontend.community') ? 'active' : '' }}">Community</a>
+            <a href="{{ route('frontend.contributors') }}" class="{{ request()->routeIs('frontend.contributors') ? 'active' : '' }}">Contributors</a>
+            <a href="{{ route('blog.index') }}" class="{{ request()->routeIs('blog.*') ? 'active' : '' }}">Blog</a>
+            <div class="nav-dropdown">
+                <button type="button" aria-haspopup="true">More <span>⌄</span></button>
+                <div class="nav-dropdown-menu">
+                    <a href="{{ route('frontend.features') }}">Features</a>
+                    <a href="{{ route('frontend.how-it-works') }}">How it works</a>
+                    <a href="{{ route('frontend.faq') }}">FAQ</a>
+                    <a href="{{ route('frontend.about') }}">About CampusNotes</a>
+                    <a href="{{ route('frontend.contact') }}">Contact</a>
+                </div>
             </div>
         </nav>
-
-        <div class="cn-nav-actions">
+        <div class="nav-actions">
+            <a class="iconbtn desktop" href="{{ route('resources.index') }}" title="Search resources" aria-label="Search resources">⌕</a>
+            <button class="iconbtn desktop" type="button" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">◐</button>
             @auth
-                <a class="cn-login-link" href="{{ route('dashboard') }}">Workspace</a>
-                <a class="cn-button cn-button-primary" href="{{ route('dashboard') }}">Open app <span aria-hidden="true">↗</span></a>
+                @can('dashboard-access')
+                    <a class="btn outline desktop" href="{{ route('home') }}">Admin Panel</a>
+                @else
+                    <a class="btn outline desktop" href="{{ route('student.dashboard') }}">Dashboard</a>
+                @endcan
+                <a class="btn primary desktop" href="{{ route('resources.upload') }}">Upload +</a>
             @else
-                <a class="cn-login-link" href="{{ route('login') }}">Login</a>
-                <a class="cn-button cn-button-primary" href="{{ route('register') }}">Get started <span aria-hidden="true">↗</span></a>
+                <a class="btn outline desktop" href="{{ route('login') }}">Login</a>
+                <a class="btn primary desktop" href="{{ route('register') }}">Join now</a>
             @endauth
+            <button class="iconbtn mobile-menu" type="button" id="mobileMenuButton" aria-label="Open menu" aria-expanded="false">☰</button>
         </div>
     </div>
 </header>

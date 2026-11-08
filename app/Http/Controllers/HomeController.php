@@ -16,7 +16,12 @@ class HomeController extends Controller
     
     public function index()
     {
-        $data = Todo::all(); 
-        return view('backend.dashboard', compact('data'));
+        $user = request()->user();
+        if ($user && ($user->hasRole('Super Admin') || $user->can('dashboard-access'))) {
+            $data = Todo::all();
+            return view('backend.dashboard', compact('data'));
+        }
+
+        return app(\App\Http\Controllers\Frontend\StudentController::class)->dashboard(request());
     }
 }

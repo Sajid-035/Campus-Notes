@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use App\Models\BlogPostSlugRedirect;
+use App\Models\AcademicDepartment;
+use App\Models\AcademicResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\RedirectResponse;
@@ -75,13 +77,15 @@ class BlogController extends Controller
     {
         $posts = BlogPost::published()->where('robots_index', true)->whereNull('canonical_url')->latest('published_at')->get(['slug', 'updated_at', 'published_at']);
         $categories = BlogCategory::whereHas('posts', fn ($query) => $query->published()->where('robots_index', true))->get(['slug', 'updated_at']);
-        return response()->view('frontend.blog.sitemap', compact('posts', 'categories'), 200)
+        $resources = AcademicResource::approved()->get(['slug', 'updated_at']);
+        $departments = AcademicDepartment::where('is_active', true)->get(['slug', 'updated_at']);
+        return response()->view('frontend.blog.sitemap', compact('posts', 'categories', 'resources', 'departments'), 200)
             ->header('Content-Type', 'application/xml; charset=UTF-8');
     }
 
     public function robots(): Response
     {
-        $content = "User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /home\n\nSitemap: " . url('/sitemap.xml') . "\n";
+        $content = "User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /home\nDisallow: /student/\nDisallow: /resources/upload\n\nSitemap: " . url('/sitemap.xml') . "\n";
         return response($content, 200)->header('Content-Type', 'text/plain; charset=UTF-8');
     }
 

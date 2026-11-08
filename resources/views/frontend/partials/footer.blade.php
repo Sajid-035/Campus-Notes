@@ -1,19 +1,14 @@
-<footer class="cn-footer">
-    <div class="cn-container">
-        <div class="cn-footer-top">
-            <div class="cn-footer-brand-block">
-                <a class="cn-brand cn-brand-footer" href="{{ route('frontend.home') }}">
-                    <span class="cn-brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4.75A2.75 2.75 0 0 1 7.75 2H20v16.5H7.75A2.75 2.75 0 0 0 5 21.25V4.75Z"/><path d="M5 5v16.25M9 6h7M9 10h7"/></svg></span>
-                    <span>Campus<span class="cn-brand-light">Notes</span></span>
-                </a>
-                <p>A calmer space for your notes, plans and everyday learning.</p>
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <a class="brand" href="{{ route('frontend.home') }}" style="color:white"><span class="logo" style="background:#2563eb">C</span>CampusNotes</a>
+                <p>One organized space for notes, questions and academic resources. Built by students, for students.</p>
             </div>
-            <div class="cn-footer-links">
-                <div><strong>Explore</strong><a href="{{ route('frontend.features') }}">Features</a><a href="{{ route('frontend.how-it-works') }}">How it works</a><a href="{{ route('blog.index') }}">Blog</a></div>
-                <div><strong>Company</strong><a href="{{ route('frontend.about') }}">About us</a><a href="{{ route('frontend.contact') }}">Contact</a></div>
-                <div><strong>Your space</strong><a href="{{ route('login') }}">Login</a><a href="{{ route('register') }}">Create account</a></div>
-            </div>
+            <div><h4>Explore</h4><a href="{{ route('resources.index') }}">Browse resources</a><a href="{{ route('departments.index') }}">Departments</a><a href="{{ route('questions.index') }}">Previous questions</a><a href="{{ route('assignments.index') }}">Assignments</a></div>
+            <div><h4>Community</h4><a href="{{ route('frontend.community') }}">Community</a><a href="{{ route('frontend.contributors') }}">Contributors</a><a href="{{ route('blog.index') }}">Study blog</a><a href="{{ route('frontend.faq') }}">FAQ</a></div>
+            <div><h4>Support</h4><a href="{{ route('frontend.about') }}">About us</a><a href="{{ route('frontend.contact') }}">Contact us</a><a href="{{ route('login') }}">Sign in</a><a href="{{ route('register') }}">Create account</a></div>
         </div>
-        <div class="cn-footer-bottom"><span>© {{ date('Y') }} Campus Notes. All rights reserved.</span><span>Made for curious minds <span class="cn-footer-heart">♥</span></span></div>
+        <div class="copyright">© {{ date('Y') }} CampusNotes. All rights reserved. · <a href="{{ route('blog.sitemap') }}" style="display:inline">Sitemap</a></div>
     </div>
 </footer>

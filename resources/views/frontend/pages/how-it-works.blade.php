@@ -1,11 +1,15 @@
 @extends('frontend.layouts.app')
-@section('title', 'How it works')
+@section('title', 'How CampusNotes works')
 @section('content')
-<section class="cn-page-hero"><div class="cn-container"><div class="cn-eyebrow">GET STARTED WITHOUT THE FUSS</div><h1>A simple routine.<br><span>A clearer mind.</span></h1><p>Getting organized should not become another assignment. Start small, make it yours and keep moving.</p><div class="cn-breadcrumb"><a href="{{ route('frontend.home') }}">Home</a><span>/</span> How it works</div></div></section>
-<section class="cn-section cn-section-spacious cn-page-body"><div class="cn-container"><div class="cn-steps-intro"><div class="cn-eyebrow">THREE EASY STEPS</div><h2>From scattered thoughts<br>to a <span>steady flow.</span></h2></div><div class="cn-steps-grid">
-    <article class="cn-step-card"><div class="cn-step-top"><span class="cn-step-number">01</span><span class="cn-step-icon">＋</span></div><h3>Create your space</h3><p>Sign up for your Campus Notes account. A personal workspace is the first step toward a more organized study routine.</p><div class="cn-step-line"><span></span></div></article>
-    <article class="cn-step-card"><div class="cn-step-top"><span class="cn-step-number">02</span><span class="cn-step-icon">✎</span></div><h3>Bring your ideas in</h3><p>Start collecting your study notes, reminders and tasks. Keep the things you need close and easy to revisit.</p><div class="cn-step-line"><span></span></div></article>
-    <article class="cn-step-card"><div class="cn-step-top"><span class="cn-step-number">03</span><span class="cn-step-icon">↗</span></div><h3>Keep making progress</h3><p>Return to your workspace, review what matters and take the next small step toward your learning goals.</p><div class="cn-step-line"><span></span></div></article>
-</div><div class="cn-workflow-note"><span class="cn-note-check">✓</span><div><strong>Make it work for you.</strong><p>There is no perfect study routine. Start with what you need today and adjust as you learn what works best.</p></div></div></div></section>
-<section class="cn-cta-section cn-cta-section-compact"><div class="cn-container"><div class="cn-cta-card"><div><div class="cn-eyebrow cn-eyebrow-light">ONE ACCOUNT. A FRESH START.</div><h2>Your next idea is worth keeping.</h2><p>Create your account and begin building a study space that feels like yours.</p></div><a href="{{ route('register') }}" class="cn-button cn-button-white">Get started <span>→</span></a><span class="cn-cta-decoration cn-cta-decoration-one"></span><span class="cn-cta-decoration cn-cta-decoration-two"></span></div></div></section>
+<div class="container"><div class="subhead"><div class="crumb"><a href="{{ route('frontend.home') }}">Home</a> / How it works</div><h1>Simple for everyone. Useful every day.</h1><p class="muted">Find academic material, contribute your own and keep your study library organized.</p></div>
+    <div class="page-grid">
+        <article class="card info-tile"><div class="dept-code">01</div><h3>Find what you need</h3><p>Browse the resource library or filter by department, semester and academic category.</p></article>
+        <article class="card info-tile"><div class="dept-code">02</div><h3>Open and learn</h3><p>Review the resource details, read available PDF previews, check ratings and download the document.</p></article>
+        <article class="card info-tile"><div class="dept-code">03</div><h3>Save helpful material</h3><p>Sign in to bookmark useful notes and return to your saved resources from the student dashboard.</p></article>
+        <article class="card info-tile"><div class="dept-code">04</div><h3>Share your knowledge</h3><p>Upload your own notes or academic documents with a clear title, subject, course code and description.</p></article>
+        <article class="card info-tile"><div class="dept-code">05</div><h3>Wait for review</h3><p>Your upload enters a pending queue. A moderator checks it before it is made public in the library.</p></article>
+        <article class="card info-tile"><div class="dept-code">06</div><h3>Help your campus</h3><p>Approved resources help other students prepare, while your dashboard tracks downloads and contributions.</p></article>
+    </div>
+    <div class="cta" style="margin-bottom:60px"><h2>Ready to get started?</h2><p>Create your student account and explore the academic library.</p><a class="btn" style="background:white;color:#142b55" href="{{ route('register') }}">Create free account →</a></div>
+</div>
 @endsection
