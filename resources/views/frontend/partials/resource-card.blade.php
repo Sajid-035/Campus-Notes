@@ -1,11 +1,17 @@
+@php
+    $cardBookmarked = auth()->check() && (isset($resource->is_bookmarked)
+        ? (bool) $resource->is_bookmarked
+        : auth()->user()->bookmarkedResources()->whereKey($resource->id)->exists());
+@endphp
 <article class="card resource">
     <div class="resource-cover" @if($resource->cover_image) style="background-image:linear-gradient(135deg,#142b55cc,#2563eb99),url('{{ asset('storage/'.$resource->cover_image) }}')" @endif>
         <span class="pdf">{{ $resource->file_name ? strtoupper(pathinfo($resource->file_name, PATHINFO_EXTENSION)) : 'SAMPLE' }}</span>
         @auth
-            <form method="POST" action="{{ route('resources.bookmark', $resource) }}" style="position:absolute;right:12px;top:10px">@csrf<button class="bookmark" type="submit" title="Save bookmark">☆</button></form>
+            <form method="POST" action="{{ route('resources.bookmark', $resource) }}" style="position:absolute;right:12px;top:10px">@csrf<button class="bookmark" type="submit" title="{{ $cardBookmarked ? 'Remove bookmark' : 'Save bookmark' }}">{{ $cardBookmarked ? '★' : '☆' }}</button></form>
         @else
             <a class="bookmark" href="{{ route('login') }}" title="Sign in to bookmark" style="display:grid;place-items:center">☆</a>
         @endauth
+        @if($cardBookmarked)<span title="Already bookmarked" style="position:absolute;left:12px;top:10px;background:#fff;color:#1d4ed8;border-radius:20px;padding:4px 9px;font-size:11px;font-weight:700">★ Saved</span>@endif
         <span class="cover-code">{{ $resource->course_code ?: ($resource->department->code ?? 'CN') }}</span>
     </div>
     <div class="resource-body">
@@ -13,7 +19,7 @@
         <div class="muted small">{{ $resource->subject }} @if($resource->course_code) · {{ $resource->course_code }} @endif</div>
         <div class="tags">
             @if($resource->department)<span class="tag">{{ $resource->department->code }}</span>@endif
-            @if($resource->semester)<span class="tag gray">Semester {{ $resource->semester }}</span>@endif
+            @if($resource->semester)<span class="tag gray">{{ $resource->semesterOption?->name ?? ('Semester '.$resource->semester) }}</span>@endif
             @if($resource->is_verified)<span class="tag" style="background:#dcfce7;color:#166534">✓ Verified</span>@endif
         </div>
         <div class="meta">By {{ $resource->uploader?->name ?? $resource->uploader_name ?? 'CampusNotes member' }} · {{ optional($resource->created_at)->format('d M Y') }}<br>

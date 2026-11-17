@@ -10,7 +10,7 @@
         <form class="searchbox" action="{{ route('resources.index') }}" method="GET">
             <input class="field" name="q" placeholder="Search notes, subjects, courses..." aria-label="Search resources">
             <select class="field" name="department"><option value="">Department</option>@foreach($departments as $department)<option value="{{ $department->slug }}">{{ $department->code }}</option>@endforeach</select>
-            <select class="field" name="semester"><option value="">Semester</option>@for($i=1;$i<=8;$i++)<option value="{{ $i }}">{{ $i }}</option>@endfor</select>
+            <select class="field" name="semester"><option value="">Semester</option>@foreach($semesters as $semester)<option value="{{ $semester->number }}">{{ $semester->name }}</option>@endforeach</select>
             <button class="btn primary" type="submit">⌕ Search</button>
         </form>
         <div class="hero-actions"><a class="btn primary" href="{{ route('resources.index') }}">Explore resources →</a><a class="btn outline" href="{{ route('resources.upload') }}">＋ Share a resource</a></div>

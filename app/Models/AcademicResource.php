@@ -37,6 +37,11 @@ class AcademicResource extends Model
         return $this->belongsTo(AcademicDepartment::class, 'department_id');
     }
 
+    public function semesterOption(): BelongsTo
+    {
+        return $this->belongsTo(AcademicSemester::class, 'semester', 'number');
+    }
+
     public function uploader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploader_id');

@@ -25,6 +25,9 @@
 @endpush
 
 @section('content')
+@if(auth()->check())
+<div class="container" style="padding-top:18px;text-align:right"><a class="btn outline" href="{{ route('blog.submit') }}">＋ Write a Blog Post</a></div>
+@endif
 <section class="blog-hero">
     <div class="cn-container">
         <div class="blog-hero-copy">

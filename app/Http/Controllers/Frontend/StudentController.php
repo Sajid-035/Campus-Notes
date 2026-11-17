@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicDepartment;
 use App\Models\AcademicResource;
+use App\Models\AcademicResourceCategory;
+use App\Models\AcademicSemester;
 use App\Models\ContactMessage;
 use App\Models\ResourceReview;
 use App\Models\StudentDiscussion;
@@ -23,7 +25,7 @@ class StudentController extends Controller
 {
     public function dashboard(Request $request): View|RedirectResponse
     {
-        $user = $request->user();
+        $user = $request->user()->load('semesterOption');
         if ($user->account_status !== 'approved') {
             return $this->applicationStatus($request);
         }
@@ -58,9 +60,10 @@ class StudentController extends Controller
 
     public function applicationStatus(Request $request): View
     {
-        $user = $request->user()->load('academicDepartment');
+        $user = $request->user()->load(['academicDepartment', 'semesterOption']);
         $departments = AcademicDepartment::where('is_active', true)->orderBy('name')->get();
-        return view('frontend.student.application-status', compact('user', 'departments'));
+        $semesters = AcademicSemester::active()->get();
+        return view('frontend.student.application-status', compact('user', 'departments', 'semesters'));
     }
 
     public function submitVerificationDetails(Request $request): RedirectResponse
@@ -68,17 +71,23 @@ class StudentController extends Controller
         $user = $request->user();
         abort_unless($user->account_status === 'verification_required', 403);
 
+        $request->merge([
+            'institution_name' => trim((string) $request->input('institution_name', '')),
+            'institutional_id_number' => trim((string) $request->input('institutional_id_number', '')),
+        ]);
+
         $data = $request->validate([
             'institution_name' => ['required', 'string', 'max:190'],
-            'academic_department_id' => ['required', 'exists:academic_departments,id'],
-            'student_batch' => ['required', 'string', 'max:30'],
-            'semester' => ['required', 'integer', 'min:1', 'max:20'],
+            'institutional_id_number' => ['required', 'string', 'max:80', Rule::unique('users', 'institutional_id_number')->where(fn ($query) => $query->where('institution_name', $request->input('institution_name')))->ignore($user->id)],
+            'academic_department_id' => ['required', Rule::exists('academic_departments', 'id')->where('is_active', true)],
+            'student_batch' => ['nullable', Rule::requiredIf($user->account_type === 'student'), 'string', 'max:30'],
+            'semester' => ['nullable', Rule::requiredIf($user->account_type === 'student'), 'integer', Rule::exists('academic_semesters', 'number')->where('is_active', true)],
             'verification_note' => ['nullable', 'string', 'max:2000'],
         ]);
         $user->update($data + ['account_status' => 'pending', 'application_submitted_at' => now()]);
         $user->studentNotifications()->create([
             'title' => 'Verification details submitted',
-            'message' => 'Your updated student information has been submitted for review.',
+            'message' => 'Your updated institutional information has been submitted for review.',
             'type' => 'info',
         ]);
 
@@ -88,16 +97,17 @@ class StudentController extends Controller
     public function profile(Request $request): View|RedirectResponse
     {
         if ($redirect = $this->approvedGate($request)) return $redirect;
-        $user = $request->user()->load('academicDepartment');
+        $user = $request->user()->load(['academicDepartment', 'semesterOption']);
         return view('frontend.student.profile-show', compact('user'));
     }
 
     public function editProfile(Request $request): View|RedirectResponse
     {
         if ($redirect = $this->approvedGate($request)) return $redirect;
-        $user = $request->user()->load('academicDepartment');
+        $user = $request->user()->load(['academicDepartment', 'semesterOption']);
         $departments = AcademicDepartment::where('is_active', true)->orderBy('name')->get();
-        return view('frontend.student.profile', compact('user', 'departments'));
+        $semesters = AcademicSemester::active()->get();
+        return view('frontend.student.profile', compact('user', 'departments', 'semesters'));
     }
 
     public function updateProfile(Request $request): RedirectResponse
@@ -108,9 +118,9 @@ class StudentController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:30'],
             'institution_name' => ['nullable', 'string', 'max:190'],
-            'academic_department_id' => ['nullable', 'exists:academic_departments,id'],
+            'academic_department_id' => ['nullable', Rule::exists('academic_departments', 'id')->where('is_active', true)],
             'student_batch' => ['nullable', 'string', 'max:30'],
-            'semester' => ['nullable', 'integer', 'min:1', 'max:20'],
+            'semester' => ['nullable', 'integer', Rule::exists('academic_semesters', 'number')->where('is_active', true)],
             'profile_bio' => ['nullable', 'string', 'max:1200'],
             'avatar' => ['nullable', 'file', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
         ]);
@@ -153,13 +163,13 @@ class StudentController extends Controller
         }
 
         $user->save();
-        return redirect()->route('student.profile')->with('success', 'Your student profile has been updated.');
+        return redirect()->route('student.profile')->with('success', 'Your member profile has been updated.');
     }
 
     public function idCard(Request $request): View|RedirectResponse
     {
         if ($redirect = $this->approvedGate($request)) return $redirect;
-        $user = $request->user()->load('academicDepartment');
+        $user = $request->user()->load(['academicDepartment', 'semesterOption']);
         return view('frontend.student.id-card', compact('user'));
     }
 
@@ -168,7 +178,7 @@ class StudentController extends Controller
         if ($redirect = $this->approvedGate($request)) return $redirect;
         $status = $status ?: 'all';
         abort_unless(in_array($status, ['all', 'published', 'pending', 'rejected', 'draft'], true), 404);
-        $query = AcademicResource::where('uploader_id', $request->user()->id)->with('department');
+        $query = AcademicResource::where('uploader_id', $request->user()->id)->with(['department', 'semesterOption']);
         if ($status === 'published') $query->where('status', 'approved');
         elseif ($status !== 'all') $query->where('status', $status);
         $resources = $query->latest()->paginate(12)->withQueryString();
@@ -183,10 +193,11 @@ class StudentController extends Controller
     public function bookmarks(Request $request): View|RedirectResponse
     {
         if ($redirect = $this->approvedGate($request)) return $redirect;
-        $resources = $request->user()->bookmarkedResources()->with(['department', 'uploader'])
+        $resources = $request->user()->bookmarkedResources()->with(['department', 'uploader', 'semesterOption'])
             ->when($request->filled('category'), fn ($q) => $q->where('category', $request->category))
             ->latest('resource_bookmarks.created_at')->paginate(12)->withQueryString();
-        return view('frontend.student.bookmarks', compact('resources'));
+        $categories = AcademicResourceCategory::active()->pluck('name');
+        return view('frontend.student.bookmarks', compact('resources', 'categories'));
     }
 
     public function downloads(Request $request): View|RedirectResponse
@@ -338,7 +349,7 @@ class StudentController extends Controller
         ContactMessage::create([
             'name' => $request->user()->name,
             'email' => $request->user()->email,
-            'subject' => '[Student Support] ' . $data['subject'],
+            'subject' => '[Member Support] ' . $data['subject'],
             'message' => $data['message'],
             'status' => 'new',
         ]);

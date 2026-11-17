@@ -20,7 +20,8 @@
             <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
                 <img alt="image"
                     src="{{ Auth::user()->avatar_url ?: asset('img/avatar/avatar-1.png') }}"
-                    class="rounded-circle mr-1">
+                    class="rounded-circle mr-1"
+                    style="height: 36px; width: 36px; object-fit: cover;">
                 <div class="d-sm-none d-lg-inline-block">
                     Hi, {{ Auth::user()->name }}
                 </div>
@@ -29,26 +30,26 @@
             <div class="dropdown-menu dropdown-menu-right">
 
                 @can('view-profile') {{-- only users with this permission --}}
-                    <a href="{{ route('profile.show') }}" class="dropdown-item has-icon">
-                        <i class="far fa-user"></i> Profile
-                    </a>
+                <a href="{{ route('profile.show') }}" class="dropdown-item has-icon">
+                    <i class="far fa-user"></i> Profile
+                </a>
                 @endcan
                 @can('view-settings') {{-- only users with this permission --}}
-                    <a href="{{ route('settings.index') }}" class="dropdown-item has-icon">
-                        <i class="fas fa-cog"></i> Settings
-                    </a>
-                    @endcan
-                    <div class="dropdown-divider"></div>
+                <a href="{{ route('settings.index') }}" class="dropdown-item has-icon">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+                @endcan
+                <div class="dropdown-divider"></div>
 
-                    <a href="{{ route('logout') }}" class="dropdown-item has-icon text-danger"
-                        onclick="event.preventDefault(); document.getElementById('logout-form-navbar').submit();">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a>
+                <a href="{{ route('logout') }}" class="dropdown-item has-icon text-danger"
+                    onclick="event.preventDefault(); document.getElementById('logout-form-navbar').submit();">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
 
-                    <form id="logout-form-navbar" action="{{ route('logout') }}" method="POST" class="d-none">
-                        @csrf
-                    </form>
-                </div>
-            </li>
-        </ul>
-    </nav>
+                <form id="logout-form-navbar" action="{{ route('logout') }}" method="POST" class="d-none">
+                    @csrf
+                </form>
+            </div>
+        </li>
+    </ul>
+</nav>

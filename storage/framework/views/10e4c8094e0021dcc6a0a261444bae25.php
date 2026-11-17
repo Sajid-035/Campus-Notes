@@ -1,11 +1,17 @@
+<?php
+    $cardBookmarked = auth()->check() && (isset($resource->is_bookmarked)
+        ? (bool) $resource->is_bookmarked
+        : auth()->user()->bookmarkedResources()->whereKey($resource->id)->exists());
+?>
 <article class="card resource">
     <div class="resource-cover" <?php if($resource->cover_image): ?> style="background-image:linear-gradient(135deg,#142b55cc,#2563eb99),url('<?php echo e(asset('storage/'.$resource->cover_image)); ?>')" <?php endif; ?>>
         <span class="pdf"><?php echo e($resource->file_name ? strtoupper(pathinfo($resource->file_name, PATHINFO_EXTENSION)) : 'SAMPLE'); ?></span>
         <?php if(auth()->guard()->check()): ?>
-            <form method="POST" action="<?php echo e(route('resources.bookmark', $resource)); ?>" style="position:absolute;right:12px;top:10px"><?php echo csrf_field(); ?><button class="bookmark" type="submit" title="Save bookmark">☆</button></form>
+            <form method="POST" action="<?php echo e(route('resources.bookmark', $resource)); ?>" style="position:absolute;right:12px;top:10px"><?php echo csrf_field(); ?><button class="bookmark" type="submit" title="<?php echo e($cardBookmarked ? 'Remove bookmark' : 'Save bookmark'); ?>"><?php echo e($cardBookmarked ? '★' : '☆'); ?></button></form>
         <?php else: ?>
             <a class="bookmark" href="<?php echo e(route('login')); ?>" title="Sign in to bookmark" style="display:grid;place-items:center">☆</a>
         <?php endif; ?>
+        <?php if($cardBookmarked): ?><span title="Already bookmarked" style="position:absolute;left:12px;top:10px;background:#fff;color:#1d4ed8;border-radius:20px;padding:4px 9px;font-size:11px;font-weight:700">★ Saved</span><?php endif; ?>
         <span class="cover-code"><?php echo e($resource->course_code ?: ($resource->department->code ?? 'CN')); ?></span>
     </div>
     <div class="resource-body">
@@ -13,7 +19,7 @@
         <div class="muted small"><?php echo e($resource->subject); ?> <?php if($resource->course_code): ?> · <?php echo e($resource->course_code); ?> <?php endif; ?></div>
         <div class="tags">
             <?php if($resource->department): ?><span class="tag"><?php echo e($resource->department->code); ?></span><?php endif; ?>
-            <?php if($resource->semester): ?><span class="tag gray">Semester <?php echo e($resource->semester); ?></span><?php endif; ?>
+            <?php if($resource->semester): ?><span class="tag gray"><?php echo e($resource->semesterOption?->name ?? ('Semester '.$resource->semester)); ?></span><?php endif; ?>
             <?php if($resource->is_verified): ?><span class="tag" style="background:#dcfce7;color:#166534">✓ Verified</span><?php endif; ?>
         </div>
         <div class="meta">By <?php echo e($resource->uploader?->name ?? $resource->uploader_name ?? 'CampusNotes member'); ?> · <?php echo e(optional($resource->created_at)->format('d M Y')); ?><br>

@@ -5,13 +5,13 @@
 <aside class="student-sidebar">
     <div class="student-sidebar-brand">
         <span class="student-sidebar-logo">C</span>
-        <span><strong>CampusNotes</strong><small>Student Panel</small></span>
+        <span><strong>CampusNotes</strong><small>Member Workspace</small></span>
     </div>
     <div class="student-sidebar-profile">
         <div class="student-sidebar-avatar student-avatar-frame">
             @if($panelUser->avatar_url)<img src="{{ $panelUser->avatar_url }}" alt="{{ $panelUser->name }} profile photo">@else{{ strtoupper(substr($panelUser->name, 0, 1)) }}@endif
         </div>
-        <div class="student-sidebar-profile-text"><strong>{{ $panelUser->name }}</strong><small>{{ $panelUser->student_id ?: 'Student account' }}</small></div>
+        <div class="student-sidebar-profile-text"><strong>{{ $panelUser->name }}</strong><small>{{ $panelUser->student_id ?: 'CampusNotes member' }}</small></div>
         <span class="student-online-dot" title="Signed in"></span>
     </div>
 
@@ -21,7 +21,7 @@
 
     <div class="student-menu-label">MY ACADEMIC SPACE</div>
     <a class="student-menu-link {{ request()->routeIs('student.profile', 'student.profile.edit', 'student.id-card') ? 'active' : '' }}" href="{{ route('student.profile') }}"><span>♙</span> My Profile</a>
-    <div class="student-menu-sub"><a href="{{ route('student.profile') }}">View Profile</a><a href="{{ route('student.profile.edit') }}">Edit Profile</a><a href="{{ route('student.id-card') }}">Digital Student ID</a></div>
+    <div class="student-menu-sub"><a href="{{ route('student.profile') }}">View Profile</a><a href="{{ route('student.profile.edit') }}">Edit Profile</a><a href="{{ route('student.id-card') }}">Digital Membership ID</a></div>
 
     <a class="student-menu-link {{ request()->routeIs('resources.upload') || request()->routeIs('student.upload-history') ? 'active' : '' }}" href="{{ route('resources.upload') }}"><span>⇧</span> Upload Resource</a>
     <div class="student-menu-sub"><a href="{{ route('resources.upload') }}">Add New Resource</a><a href="{{ route('student.upload-history') }}">Upload History</a></div>

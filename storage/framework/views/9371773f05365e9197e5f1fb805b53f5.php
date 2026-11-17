@@ -1,0 +1,10 @@
+<?php $__env->startSection('title', $department->name . ' resources'); ?>
+<?php $__env->startSection('content'); ?>
+<div class="container"><div class="subhead"><div class="crumb"><a href="<?php echo e(route('frontend.home')); ?>">Home</a> / <a href="<?php echo e(route('departments.index')); ?>">Departments</a> / <?php echo e($department->code); ?></div><span class="eyebrow"><?php echo e($department->code); ?></span><h1><?php echo e($department->name); ?></h1><p class="muted"><?php echo e($department->description); ?></p></div>
+    <div class="section-head"><div><h2>Department resources</h2><p><?php echo e($resources->total()); ?> approved resources available.</p></div><a class="btn primary" href="<?php echo e(route('resources.upload')); ?>">＋ Upload resource</a></div>
+    <div class="resource-grid"><?php $__empty_1 = true; $__currentLoopData = $resources; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $resource): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php echo $__env->make('frontend.partials.resource-card', ['resource' => $resource], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><div class="card empty-state"><h3>No resources in this department yet</h3><p class="muted">Help classmates by sharing your study materials.</p></div><?php endif; ?></div>
+    <div class="pagination"><?php echo e($resources->links()); ?></div>
+</div>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\Campus-Notes\resources\views/frontend/resources/department.blade.php ENDPATH**/ ?>

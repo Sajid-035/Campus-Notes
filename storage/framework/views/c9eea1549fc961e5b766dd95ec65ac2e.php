@@ -9,7 +9,7 @@
         <form class="searchbox" action="<?php echo e(route('resources.index')); ?>" method="GET">
             <input class="field" name="q" placeholder="Search notes, subjects, courses..." aria-label="Search resources">
             <select class="field" name="department"><option value="">Department</option><?php $__currentLoopData = $departments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $department): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><option value="<?php echo e($department->slug); ?>"><?php echo e($department->code); ?></option><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?></select>
-            <select class="field" name="semester"><option value="">Semester</option><?php for($i=1;$i<=8;$i++): ?><option value="<?php echo e($i); ?>"><?php echo e($i); ?></option><?php endfor; ?></select>
+            <select class="field" name="semester"><option value="">Semester</option><?php $__currentLoopData = $semesters; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $semester): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><option value="<?php echo e($semester->number); ?>"><?php echo e($semester->name); ?></option><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?></select>
             <button class="btn primary" type="submit">⌕ Search</button>
         </form>
         <div class="hero-actions"><a class="btn primary" href="<?php echo e(route('resources.index')); ?>">Explore resources →</a><a class="btn outline" href="<?php echo e(route('resources.upload')); ?>">＋ Share a resource</a></div>

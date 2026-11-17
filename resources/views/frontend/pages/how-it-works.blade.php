@@ -10,6 +10,6 @@
         <article class="card info-tile"><div class="dept-code">05</div><h3>Wait for review</h3><p>Your upload enters a pending queue. A moderator checks it before it is made public in the library.</p></article>
         <article class="card info-tile"><div class="dept-code">06</div><h3>Help your campus</h3><p>Approved resources help other students prepare, while your dashboard tracks downloads and contributions.</p></article>
     </div>
-    <div class="cta" style="margin-bottom:60px"><h2>Ready to get started?</h2><p>Create your student account and explore the academic library.</p><a class="btn" style="background:white;color:#142b55" href="{{ route('register') }}">Create free account →</a></div>
+    <div class="cta" style="margin-bottom:60px"><h2>Ready to get started?</h2><p>Create your CampusNotes account and explore the academic library.</p><a class="btn" style="background:white;color:#142b55" href="{{ route('register') }}">Create free account →</a></div>
 </div>
 @endsection

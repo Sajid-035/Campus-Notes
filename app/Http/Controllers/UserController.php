@@ -24,7 +24,10 @@ class UserController extends Controller
 
     public function index(Request $request): View
     {
-        $data = User::latest()->paginate(5);
+        $data = User::where(function ($query) {
+            $query->where('account_status', 'approved')
+                ->orWhereHas('roles', fn ($roles) => $roles->whereIn('name', ['Super Admin', 'Admin']));
+        })->latest()->paginate(10);
 
         return view('users.index', compact('data'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
@@ -52,8 +55,9 @@ class UserController extends Controller
 
         $input = $request->only(['name', 'email']);
         $input['password'] = Hash::make($request->input('password'));
-        $input['account_status'] = 'pending';
+        $input['account_status'] = 'approved';
         $input['application_submitted_at'] = now();
+        $input['verified_at'] = now();
 
         $this->assertAssignableRoles($request->input('roles', []));
         $user = User::create($input);

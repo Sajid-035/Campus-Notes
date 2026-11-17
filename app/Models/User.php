@@ -25,8 +25,9 @@ class User extends Authenticatable
         'email',
         'avatar',
         'password',
-        'student_id', 'application_number', 'institution_name', 'academic_department_id',
-        'student_batch', 'semester', 'account_status', 'application_submitted_at',
+        'student_id', 'application_number', 'account_type', 'institutional_id_number',
+        'institution_name', 'academic_department_id', 'student_batch', 'semester',
+        'account_status', 'application_submitted_at',
         'rejection_reason', 'verification_note', 'verified_at', 'phone', 'profile_bio',
         'profile_public', 'show_in_leaderboard',
     ];
@@ -56,15 +57,18 @@ class User extends Authenticatable
             return null;
         }
 
-        $path = ltrim((string) $this->avatar, '/');
+        $path = ltrim(str_replace('\\', '/', (string) $this->avatar), '/');
         if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
             return $path;
         }
-
-        if (!str_starts_with($path, 'uploads/')) {
-            $path = 'uploads/avatars/' . $path;
+        if (str_starts_with($path, 'storage/')) {
+            return asset($path);
         }
-
+        if (str_starts_with($path, 'avatars/')) {
+            $path = 'uploads/' . $path;
+        } elseif (!str_starts_with($path, 'uploads/avatars/')) {
+            $path = 'uploads/avatars/' . basename($path);
+        }
         return asset($path);
     }
 
@@ -81,6 +85,11 @@ class User extends Authenticatable
     public function academicDepartment()
     {
         return $this->belongsTo(AcademicDepartment::class, 'academic_department_id');
+    }
+
+    public function semesterOption()
+    {
+        return $this->belongsTo(AcademicSemester::class, 'semester', 'number');
     }
 
     public function studentDownloads(): HasMany

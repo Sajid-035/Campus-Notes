@@ -57,6 +57,8 @@
             @include('backend.components.footer')
         </div>
     </div>
+
+    @include('backend.components.admin-confirm-dialog')
  
     
     <!-- General JS Scripts -->

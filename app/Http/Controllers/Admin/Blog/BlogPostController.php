@@ -39,6 +39,8 @@ class BlogPostController extends Controller
             $query->where('status', 'scheduled')->where('published_at', '>', now());
         } elseif ($request->status === 'draft') {
             $query->where('status', 'draft');
+        } elseif ($request->status === 'pending') {
+            $query->where('status', 'pending');
         }
 
         if ($request->filled('category')) {
@@ -52,9 +54,27 @@ class BlogPostController extends Controller
             'published' => BlogPost::published()->count(),
             'scheduled' => BlogPost::where('status', 'scheduled')->where('published_at', '>', now())->count(),
             'draft' => BlogPost::where('status', 'draft')->count(),
+            'pending' => BlogPost::where('status', 'pending')->count(),
         ];
 
         return view('backend.blog.posts.index', compact('posts', 'categories', 'stats'));
+    }
+
+
+    public function approve(BlogPost $post): RedirectResponse
+    {
+        $post->update([
+            'status' => 'published',
+            'published_at' => now(),
+            'robots_index' => true,
+        ]);
+        return redirect()->route('admin.blog.posts.index')->with('success', 'Blog post approved and published.');
+    }
+
+    public function reject(BlogPost $post): RedirectResponse
+    {
+        $post->update(['status' => 'draft', 'published_at' => null]);
+        return redirect()->route('admin.blog.posts.index')->with('success', 'Blog post was not approved and has been returned to drafts.');
     }
 
     public function create(): View

@@ -9,9 +9,12 @@
 </li>
 <?php endif; ?>
 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['resources-list','resources-approve','resources-delete'])): ?>
-<li class="menu-header">Academic Library</li>
+<li class="menu-header">Community Contributions</li>
 <li class="nav-item <?php echo e(Request::routeIs('admin.resources.*') ? 'active' : ''); ?>">
-    <a href="<?php echo e(route('admin.resources.index')); ?>" class="nav-link"><i class="fas fa-book-open"></i><span>Resource Moderation</span></a>
+    <a href="<?php echo e(route('admin.resources.index')); ?>" class="nav-link"><i class="fas fa-book-open"></i><span>User Resources</span></a>
+</li>
+<li class="nav-item <?php echo e(Request::routeIs('admin.academic-settings.*') ? 'active' : ''); ?>">
+    <a href="<?php echo e(route('admin.academic-settings.index')); ?>" class="nav-link"><i class="fas fa-sliders-h"></i><span>Academic Settings</span></a>
 </li>
 <?php endif; ?>
 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['blog-list','blog-create','blog-edit','blog-delete'])): ?>
@@ -36,7 +39,7 @@
 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('user-create')): ?><li><a class="nav-link" href="<?php echo e(route('users.create')); ?>">Add User</a></li><?php endif; ?>
 <li><a class="nav-link" href="<?php echo e(route('users.index')); ?>">User List</a></li>
 <?php endif; ?>
-<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('user-list')): ?><li><a class="nav-link" href="<?php echo e(route('admin.student-applications.index')); ?>">Student Applications</a></li><?php endif; ?>
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('user-list')): ?><li><a class="nav-link" href="<?php echo e(route('admin.student-applications.index')); ?>">Member Applications</a></li><?php endif; ?>
 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['role-list','role-create'])): ?>
 <li class="dropdown-header">Roles</li>
 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('role-create')): ?><li><a class="nav-link" href="<?php echo e(route('roles.create')); ?>">Add Role</a></li><?php endif; ?>

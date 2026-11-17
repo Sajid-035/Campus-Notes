@@ -1,7 +1,7 @@
 @extends('frontend.layouts.app')
-@section('title', 'Digital Student ID Card')
+@section('title', 'Digital Membership Card')
 @section('content')
-<div class="container student-id-card-page"><div class="student-page-heading"><div><span class="student-kicker">CAMPUSNOTES MEMBERSHIP</span><h1>Digital Student ID Card</h1><p>Your CampusNotes membership identity. This is not a substitute for your university-issued ID.</p></div><button class="btn primary no-print" onclick="window.print()">↓ Download / Print PDF</button></div>
+<div class="container student-id-card-page"><div class="student-page-heading"><div><span class="student-kicker">CAMPUSNOTES MEMBERSHIP</span><h1>Digital Membership Card</h1><p>Your CampusNotes membership identity. This is not a substitute for your university-issued ID.</p></div><button class="btn primary no-print" onclick="window.print()">↓ Download / Print PDF</button></div>
     @include('frontend.student.partials.id-card-preview', ['user' => $user])
     <div class="student-id-card-note no-print"><strong>How to save:</strong> Select “Download / Print PDF”, then choose “Save as PDF” in your browser's print dialog.</div>
     <a class="btn outline no-print" href="{{ route('student.profile') }}">← Back to Profile</a>

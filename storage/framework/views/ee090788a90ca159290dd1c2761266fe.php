@@ -57,6 +57,8 @@
             <?php echo $__env->make('backend.components.footer', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
         </div>
     </div>
+
+    <?php echo $__env->make('backend.components.admin-confirm-dialog', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
  
     
     <!-- General JS Scripts -->

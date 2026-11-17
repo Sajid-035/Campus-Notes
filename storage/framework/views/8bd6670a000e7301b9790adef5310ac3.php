@@ -17,15 +17,16 @@
 
     <ul class="navbar-nav navbar-right">
         <li class="dropdown">
-            <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
-                <img alt="image"
-                    src="<?php echo e(Auth::user()->avatar_url ?: asset('img/avatar/avatar-1.png')); ?>"
-                    class="rounded-circle mr-1">
-                <div class="d-sm-none d-lg-inline-block">
-                    Hi, <?php echo e(Auth::user()->name); ?>
+          <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+    <img alt="image"
+        src="<?php echo e(Auth::user()->avatar_url ?: asset('img/avatar/avatar-1.png')); ?>"
+        class="rounded-circle mr-1"
+        style="height: 36px; width: 36px; object-fit: cover;">
+    <div class="d-sm-none d-lg-inline-block">
+        Hi, <?php echo e(Auth::user()->name); ?>
 
-                </div>
-            </a>
+    </div>
+</a>
 
             <div class="dropdown-menu dropdown-menu-right">
 

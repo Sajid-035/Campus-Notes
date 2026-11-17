@@ -23,6 +23,9 @@
 <?php $__env->stopPush(); ?>
 
 <?php $__env->startSection('content'); ?>
+<?php if(auth()->check()): ?>
+<div class="container" style="padding-top:18px;text-align:right"><a class="btn outline" href="<?php echo e(route('blog.submit')); ?>">＋ Write a Blog Post</a></div>
+<?php endif; ?>
 <section class="blog-hero">
     <div class="cn-container">
         <div class="blog-hero-copy">

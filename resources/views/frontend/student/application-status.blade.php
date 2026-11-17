@@ -5,15 +5,16 @@
 @section('content')
 @php
     $accountStatus = (string) ($user->account_status ?? 'pending');
+    $memberType = ucfirst($user->account_type ?: 'student');
     $statusContent = [
         'pending' => [
             'title' => 'Your application is under review',
-            'description' => 'Thanks for applying to CampusNotes. Our team is checking your student information. You can revisit this page to see updates.',
+            'description' => 'Thanks for applying to CampusNotes. Our team is checking your institutional information. You can revisit this page to see updates.',
             'icon' => '◷',
         ],
         'approved' => [
             'title' => 'Your account is approved',
-            'description' => 'You now have full access to your student dashboard and digital membership card.',
+            'description' => 'You now have full access to your member dashboard and digital membership card.',
             'icon' => '✓',
         ],
         'rejected' => [
@@ -46,7 +47,7 @@
         <a class="brand" href="{{ route('frontend.home') }}"><span class="logo">C</span>CampusNotes</a>
 
         <div class="application-status-icon {{ $accountStatus }}">{{ $currentStatus['icon'] }}</div>
-        <span class="student-kicker">STUDENT ACCOUNT VERIFICATION</span>
+        <span class="student-kicker">{{ strtoupper($memberType) }} ACCOUNT VERIFICATION</span>
         <h1>{{ $currentStatus['title'] }}</h1>
         <p class="muted">{{ $currentStatus['description'] }}</p>
 
@@ -56,7 +57,8 @@
 
         <div class="application-reference-grid">
             <div><small>APPLICATION NUMBER</small><strong>{{ $user->application_number ?: 'Pending assignment' }}</strong></div>
-            <div><small>STUDENT ID</small><strong>{{ $user->student_id ?: 'Pending assignment' }}</strong></div>
+            <div><small>CAMPUS MEMBER ID</small><strong>{{ $user->student_id ?: 'Pending assignment' }}</strong></div>
+            <div><small>INSTITUTIONAL ID CARD NO.</small><strong>{{ $user->institutional_id_number ?: 'Not supplied' }}</strong></div>
             <div><small>SUBMISSION DATE</small><strong>{{ $submittedAt ? $submittedAt->format('d M Y') : 'Not available' }}</strong></div>
             <div><small>VERIFICATION STATUS</small><strong><span class="status {{ $accountStatus }}">{{ ucwords(str_replace('_', ' ', $accountStatus)) }}</span></strong></div>
         </div>
@@ -66,11 +68,14 @@
         @endif
 
         @if($accountStatus === 'verification_required')
-            <div class="application-reason"><strong>Additional information requested</strong><p>{{ $user->verification_note ?: 'Please confirm your student details.' }}</p></div>
+            <div class="application-reason"><strong>Additional information requested</strong><p>{{ $user->verification_note ?: 'Please confirm your institutional details.' }}</p></div>
             <form method="POST" action="{{ route('student.verification-details') }}" class="application-verification-form">
                 @csrf
                 <label class="field-label" for="institution_name">University / Institution *</label>
                 <input class="field" id="institution_name" name="institution_name" required value="{{ old('institution_name', $user->institution_name) }}">
+
+                <label class="field-label" for="institutional_id_number">Institutional ID Card No. *</label>
+                <input class="field" id="institutional_id_number" name="institutional_id_number" required maxlength="80" value="{{ old('institutional_id_number', $user->institutional_id_number) }}">
 
                 <label class="field-label" for="academic_department_id">Department *</label>
                 <select class="field" id="academic_department_id" name="academic_department_id" required>
@@ -80,15 +85,18 @@
                     @endforeach
                 </select>
 
-                <label class="field-label" for="student_batch">Batch *</label>
-                <input class="field" id="student_batch" name="student_batch" required value="{{ old('student_batch', $user->student_batch) }}">
+                @if(($user->account_type ?: 'student') === 'student')
+                    <label class="field-label" for="student_batch">Batch *</label>
+                    <input class="field" id="student_batch" name="student_batch" required value="{{ old('student_batch', $user->student_batch) }}">
 
-                <label class="field-label" for="semester">Current Semester *</label>
-                <select class="field" id="semester" name="semester" required>
-                    @for($i = 1; $i <= 20; $i++)
-                        <option value="{{ $i }}" @selected(old('semester', $user->semester) == $i)>Semester {{ $i }}</option>
-                    @endfor
-                </select>
+                    <label class="field-label" for="semester">Current Semester *</label>
+                    <select class="field" id="semester" name="semester" required>
+                        <option value="">Choose semester</option>
+                        @foreach($semesters as $semester)
+                            <option value="{{ $semester->number }}" @selected(old('semester', $user->semester) == $semester->number)>{{ $semester->name }}</option>
+                        @endforeach
+                    </select>
+                @endif
 
                 <label class="field-label" for="verification_note">Message (optional)</label>
                 <textarea class="field" id="verification_note" rows="3" name="verification_note" placeholder="Add any clarification">{{ old('verification_note') }}</textarea>
@@ -97,7 +105,7 @@
         @endif
 
         @if($accountStatus === 'approved')
-            <a class="btn primary" href="{{ route('student.dashboard') }}">Go to Student Dashboard →</a>
+            <a class="btn primary" href="{{ route('student.dashboard') }}">Go to Member Dashboard →</a>
         @elseif(in_array($accountStatus, ['rejected', 'suspended', 'inactive'], true))
             <a class="btn primary" href="{{ route('student.support') }}">Contact Admin Support</a>
         @else
