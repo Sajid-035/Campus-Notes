@@ -14,11 +14,25 @@ class AcademicResourceController extends Controller
 {
     public function index(Request $request): View
     {
-        $resources = AcademicResource::with(['department', 'uploader'])
-            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
-            ->when($request->filled('q'), fn ($q) => $q->where('title', 'like', '%' . $request->q . '%'))
+        $resources = AcademicResource::with(['department', 'uploader', 'semesterOption'])
+            ->when(in_array($request->query('status'), ['pending', 'approved', 'rejected', 'draft'], true), fn ($q) => $q->where('status', $request->query('status')))
+            ->when($request->filled('q'), function ($q) use ($request) {
+                $term = trim((string) $request->query('q'));
+                $q->where(function ($search) use ($term) {
+                    $search->where('title', 'like', '%' . $term . '%')
+                        ->orWhere('subject', 'like', '%' . $term . '%')
+                        ->orWhere('uploader_name', 'like', '%' . $term . '%')
+                        ->orWhereHas('uploader', fn ($user) => $user->where('name', 'like', '%' . $term . '%')->orWhere('email', 'like', '%' . $term . '%'));
+                });
+            })
             ->latest()->paginate(20)->withQueryString();
-        return view('backend.resources.index', compact('resources'));
+        $resourceCounts = [
+            'all' => AcademicResource::count(),
+            'pending' => AcademicResource::where('status', 'pending')->count(),
+            'approved' => AcademicResource::where('status', 'approved')->count(),
+            'rejected' => AcademicResource::where('status', 'rejected')->count(),
+        ];
+        return view('backend.resources.index', compact('resources', 'resourceCounts'));
     }
 
     public function approve(AcademicResource $resource, Request $request): RedirectResponse

@@ -69,7 +69,8 @@ class RoleController extends Controller
 
         // Assign permissions only if provided
         if ($request->filled('permission')) {
-            $role->syncPermissions($request->input('permission')); // IDs are enough
+            $permissions = Permission::whereIn('id', $request->input('permission'))->get();
+            $role->syncPermissions($permissions);
         }
 
         return redirect()->route('roles.index')
@@ -108,16 +109,16 @@ class RoleController extends Controller
     public function update(Request $request, $id): RedirectResponse
     {
         $this->validate($request, [
-            'name'       => 'required',
-            'permission' => 'required',
+            'name'       => 'required|string|max:255|unique:roles,name,' . $id,
+            'permission' => 'nullable|array',
+            'permission.*' => 'integer|exists:permissions,id',
         ]);
 
-        $role = Role::find($id);
+        $role = Role::findOrFail($id);
         $role->name = $request->input('name');
         $role->save();
 
-        // Convert IDs → names
-        $permissions = Permission::whereIn('id', $request->input('permission'))->pluck('name')->toArray();
+        $permissions = Permission::whereIn('id', $request->input('permission', []))->get();
         $role->syncPermissions($permissions);
 
         return redirect()->route('roles.index')

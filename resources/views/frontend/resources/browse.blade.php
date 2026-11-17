@@ -9,7 +9,7 @@
             <h3>⚙ Filters</h3>
             <form action="{{ route('resources.index') }}" method="GET">
                 <label>Department<select class="field" name="department"><option value="">All departments</option>@foreach($departments as $department)<option value="{{ $department->slug }}" @selected(request('department')===$department->slug)>{{ $department->code }} — {{ $department->name }}</option>@endforeach</select></label>
-                <label>Semester<select class="field" name="semester"><option value="">All semesters</option>@for($i=1;$i<=8;$i++)<option value="{{ $i }}" @selected((string)request('semester')===(string)$i)>Semester {{ $i }}</option>@endfor</select></label>
+                <label>Semester<select class="field" name="semester"><option value="">All semesters</option>@foreach($semesters as $semester)<option value="{{ $semester->number }}" @selected((string)request('semester')===(string)$semester->number)>{{ $semester->name }}</option>@endforeach</select></label>
                 <label>Category<select class="field" name="category"><option value="">All categories</option>@foreach($categories as $category)<option @selected(request('category')===$category)>{{ $category }}</option>@endforeach</select></label>
                 <label class="filter-check"><input type="checkbox" name="verified" value="1" @checked(request()->boolean('verified'))> Verified only</label>
                 <input type="hidden" name="q" value="{{ request('q') }}">

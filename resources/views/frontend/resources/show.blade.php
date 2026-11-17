@@ -5,7 +5,7 @@
 @section('og_title', $resource->title . ' · CampusNotes')
 @section('meta_description', \Illuminate\Support\Str::limit(strip_tags($resource->description ?: $resource->title . ' academic resource'), 155))
 @push('seo')
-@php($resourceSchema = ['@context' => 'https://schema.org', '@type' => 'LearningResource', 'name' => $resource->title, 'description' => strip_tags($resource->description ?: $resource->title), 'learningResourceType' => $resource->category, 'educationalLevel' => $resource->semester ? 'Semester '.$resource->semester : null, 'url' => route('resources.show', $resource), 'datePublished' => $resource->created_at?->toIso8601String()])
+@php($resourceSchema = ['@context' => 'https://schema.org', '@type' => 'LearningResource', 'name' => $resource->title, 'description' => strip_tags($resource->description ?: $resource->title), 'learningResourceType' => $resource->category, 'educationalLevel' => $resource->semester ? ($resource->semesterOption?->name ?? 'Semester '.$resource->semester) : null, 'url' => route('resources.show', $resource), 'datePublished' => $resource->created_at?->toIso8601String()])
 <script type="application/ld+json">@json($resourceSchema, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE)</script>
 @endpush
 @section('content')
@@ -32,14 +32,18 @@
             <div class="card" id="reviewPanel" style="margin-top:18px;padding:20px"><h3>Student reviews</h3>
                 @forelse($resource->reviews as $review)<div class="review-card"><div class="profile-row"><div class="avatar-circle">{{ strtoupper(substr($review->user->name,0,1)) }}</div><div><strong>{{ $review->user->name }}</strong><div class="gold">{{ str_repeat('★', $review->rating) }}{{ str_repeat('☆', 5-$review->rating) }}</div></div><span class="muted small" style="margin-left:auto">{{ $review->created_at->format('d M Y') }}</span></div>@if($review->comment)<p class="muted small">{{ $review->comment }}</p>@endif</div>@empty<p class="muted small">No student reviews yet. Be the first to review this resource.</p>@endforelse
                 @auth
+                    @if((int) $resource->uploader_id !== (int) auth()->id())
                     <form method="POST" action="{{ route('resources.review', $resource) }}" style="margin-top:18px">@csrf<label class="field-label">Your rating</label><select class="field" name="rating" required><option value="">Choose rating</option>@for($i=5;$i>=1;$i--)<option value="{{ $i }}">{{ $i }} — {{ $i===5?'Excellent':($i===4?'Very good':($i===3?'Good':($i===2?'Fair':'Poor'))) }}</option>@endfor</select><label class="field-label">Review (optional)</label><textarea class="field" name="comment" rows="3" placeholder="Share how this resource helped you..."></textarea><button class="btn primary" style="margin-top:10px">Submit review</button></form>
+                    @else
+                        <p class="muted small" style="margin-top:15px">You cannot review a resource that you uploaded.</p>
+                    @endif
                 @else<a class="btn outline" href="{{ route('login') }}">Sign in to leave a review</a>@endauth
             </div>
             <div class="section-head" style="margin-top:35px"><h2>Related resources</h2><a href="{{ route('resources.index') }}" class="btn outline">See all →</a></div>
             <div class="resource-grid">@forelse($relatedResources as $related)@include('frontend.partials.resource-card',['resource'=>$related])@empty<p class="muted">No related resources available.</p>@endforelse</div>
         </div>
         <aside class="card info-card"><h3 style="margin-top:0">Resource details</h3>
-            @foreach(['Category'=>$resource->category,'Department'=>$resource->department?->name ?? '—','Semester'=>$resource->semester ? 'Semester '.$resource->semester : '—','Subject'=>$resource->subject,'Course code'=>$resource->course_code ?: '—','File size'=>$resource->file_size ? number_format($resource->file_size/1048576,1).' MB' : '—','Pages'=>$resource->page_count ?: '—','Uploaded'=>optional($resource->created_at)->format('d M Y'),'Uploader'=>$resource->uploader?->name ?? $resource->uploader_name ?? 'CampusNotes','Downloads'=>number_format($resource->downloads_count)] as $label=>$value)
+            @foreach(['Category'=>$resource->category,'Department'=>$resource->department?->name ?? '—','Semester'=>$resource->semester ? ($resource->semesterOption?->name ?? 'Semester '.$resource->semester) : '—','Subject'=>$resource->subject,'Course code'=>$resource->course_code ?: '—','File size'=>$resource->file_size ? number_format($resource->file_size/1048576,1).' MB' : '—','Pages'=>$resource->page_count ?: '—','Uploaded'=>optional($resource->created_at)->format('d M Y'),'Uploader'=>$resource->uploader?->name ?? $resource->uploader_name ?? 'CampusNotes','Downloads'=>number_format($resource->downloads_count)] as $label=>$value)
                 <div class="info-row"><span>{{ $label }}</span><b>{{ $value }}</b></div>
             @endforeach
             @if($resource->file_path)<a href="{{ route('resources.download', $resource) }}" class="btn primary" style="width:100%;margin-top:18px">⇩ Download resource</a>@else<span class="btn outline" style="width:100%;margin-top:18px;cursor:not-allowed">Demo entry · no file attached</span>@endif

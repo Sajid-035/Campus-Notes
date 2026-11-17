@@ -1,7 +1,7 @@
 @extends('frontend.student.layouts.panel')
 @section('title', 'Edit Profile')
 @section('panel-content')
-<div class="student-page-heading"><div><span class="student-kicker">MY PROFILE</span><h1>Edit Profile</h1><p>Update your academic identity and profile information.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn outline" href="{{ route('student.profile') }}">View Profile</a><a class="btn outline" href="{{ route('student.id-card') }}">Digital ID →</a></div></div>
+<div class="student-page-heading"><div><span class="student-kicker">MY PROFILE</span><h1>Edit Profile</h1><p>Update your membership and profile information.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn outline" href="{{ route('student.profile') }}">View Profile</a><a class="btn outline" href="{{ route('student.id-card') }}">Membership ID →</a></div></div>
 <div class="student-profile-grid">
     <div class="card form-card"><form method="POST" action="{{ route('student.profile.update') }}" enctype="multipart/form-data">@csrf @method('PUT')
         @if($errors->any())<div class="flash error">Please review the highlighted information.<ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
@@ -14,13 +14,13 @@
                     <span id="avatarInitial">{{ strtoupper(substr($user->name,0,1)) }}</span>
                 @endif
             </div>
-            <div><h3>{{ $user->name }}</h3><span class="status approved">✓ Verified Student</span><p class="muted small" style="margin:5px 0 0">Your profile photo appears on your student panel and membership card.</p></div>
+            <div><h3>{{ $user->name }}</h3><span class="status approved">✓ Verified {{ ucfirst($user->account_type ?: 'student') }}</span><p class="muted small" style="margin:5px 0 0">Your profile photo appears across your CampusNotes workspace and membership card.</p></div>
         </div>
         <label class="field-label">Full Name *</label><input class="field" name="name" required value="{{ old('name',$user->name) }}">
         <label class="field-label">Phone Number</label><input class="field" name="phone" value="{{ old('phone',$user->phone) }}" placeholder="Your contact number">
         <label class="field-label">University / Institution</label><input class="field" name="institution_name" value="{{ old('institution_name',$user->institution_name) }}">
         <label class="field-label">Department</label><select class="field" name="academic_department_id"><option value="">Choose department</option>@foreach($departments as $department)<option value="{{ $department->id }}" @selected(old('academic_department_id',$user->academic_department_id)==$department->id)>{{ $department->name }} ({{ $department->code }})</option>@endforeach</select>
-        <div class="profile-form-row"><div><label class="field-label">Batch</label><input class="field" name="student_batch" value="{{ old('student_batch',$user->student_batch) }}"></div><div><label class="field-label">Semester</label><select class="field" name="semester"><option value="">Choose semester</option>@for($i=1;$i<=20;$i++)<option value="{{ $i }}" @selected(old('semester',$user->semester)==$i)>Semester {{ $i }}</option>@endfor</select></div></div>
+        @if(($user->account_type ?: 'student') === 'student')<div class="profile-form-row"><div><label class="field-label">Batch</label><input class="field" name="student_batch" value="{{ old('student_batch',$user->student_batch) }}"></div><div><label class="field-label">Semester</label><select class="field" name="semester"><option value="">Choose semester</option>@foreach($semesters as $semester)<option value="{{ $semester->number }}" @selected(old('semester',$user->semester)==$semester->number)>{{ $semester->name }}</option>@endforeach</select></div></div>@endif
         <label class="field-label">About Me</label><textarea class="field" name="profile_bio" rows="4" placeholder="A short introduction">{{ old('profile_bio',$user->profile_bio) }}</textarea>
         <label class="field-label" for="avatarInput">Profile Photo</label>
         <input class="field" id="avatarInput" type="file" name="avatar" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
@@ -28,7 +28,7 @@
         @error('avatar')<p class="field-error" style="color:#dc2626;font-size:11px">{{ $message }}</p>@enderror
         <button class="btn primary">Save Profile</button>
     </form></div>
-    <div class="student-profile-side"><div class="card student-identity-summary"><span class="student-kicker">CAMPUSNOTES IDENTITY</span><h3>{{ $user->student_id }}</h3><p class="muted small">Your unique CampusNotes student membership ID.</p><div class="info-row"><span>Application</span><strong>{{ $user->application_number }}</strong></div><div class="info-row"><span>Email</span><strong>{{ $user->email }}</strong></div><div class="info-row"><span>Account</span><span class="status approved">Approved</span></div><a class="btn outline" style="width:100%;margin-top:15px" href="{{ route('student.id-card') }}">Download ID Card</a></div>
+    <div class="student-profile-side"><div class="card student-identity-summary"><span class="student-kicker">CAMPUSNOTES IDENTITY</span><h3>{{ $user->student_id }}</h3><p class="muted small">Your unique CampusNotes member ID.</p><div class="info-row"><span>Account Type</span><strong>{{ ucfirst($user->account_type ?: 'student') }}</strong></div><div class="info-row"><span>Institutional ID</span><strong>{{ $user->institutional_id_number ?: 'Not provided' }}</strong></div><div class="info-row"><span>Application</span><strong>{{ $user->application_number }}</strong></div><div class="info-row"><span>Email</span><strong>{{ $user->email }}</strong></div><div class="info-row"><span>Account</span><span class="status approved">Approved</span></div><a class="btn outline" style="width:100%;margin-top:15px" href="{{ route('student.id-card') }}">Download ID Card</a></div>
         <div class="card student-identity-summary"><h3>Profile visibility</h3><p class="muted small">Control your profile and leaderboard visibility from Account Settings.</p><a href="{{ route('student.settings') }}" class="student-table-action">Open Account Settings →</a></div></div>
 </div>
 @endsection

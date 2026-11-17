@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AcademicResourceController as AdminAcademicResourceController;
+use App\Http\Controllers\Admin\AcademicSettingsController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\StudentApprovalController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\Frontend\ContactController;
 use App\Http\Controllers\Frontend\FrontendController;
 use App\Http\Controllers\Frontend\StudentController;
 use App\Http\Controllers\Frontend\BlogController;
+use App\Http\Controllers\Frontend\BlogSubmissionController;
 use App\Http\Controllers\Admin\Blog\BlogPostController;
 use App\Http\Controllers\Admin\Blog\BlogCategoryController;
 use App\Http\Controllers\HomeController;
@@ -52,6 +54,10 @@ Route::get('/robots.txt', [BlogController::class, 'robots'])->name('blog.robots'
 Route::get('/sitemap.xml', [BlogController::class, 'sitemap'])->name('blog.sitemap');
 Route::get('/blog/feed.xml', [BlogController::class, 'feed'])->name('blog.feed');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::middleware('auth')->group(function () {
+    Route::get('/blog/submit', [BlogSubmissionController::class, 'create'])->name('blog.submit');
+    Route::post('/blog/submit', [BlogSubmissionController::class, 'store'])->name('blog.submit.store');
+});
 Route::get('/blog/category/{slug}', [BlogController::class, 'category'])->name('blog.category');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
@@ -93,6 +99,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/posts/create', [BlogPostController::class, 'create'])->middleware('can:blog-create')->name('posts.create');
         Route::post('/posts', [BlogPostController::class, 'store'])->middleware('can:blog-create')->name('posts.store');
         Route::post('/upload-inline-image', [BlogPostController::class, 'uploadInlineImage'])->middleware('can:blog-create')->name('upload-inline-image');
+        Route::post('/posts/{post}/approve', [BlogPostController::class, 'approve'])->middleware('can:blog-edit')->name('posts.approve');
+        Route::post('/posts/{post}/reject', [BlogPostController::class, 'reject'])->middleware('can:blog-edit')->name('posts.reject');
         Route::get('/posts/{post}/edit', [BlogPostController::class, 'edit'])->middleware('can:blog-edit')->name('posts.edit');
         Route::put('/posts/{post}', [BlogPostController::class, 'update'])->middleware('can:blog-edit')->name('posts.update');
         Route::delete('/posts/{post}', [BlogPostController::class, 'destroy'])->middleware('can:blog-delete')->name('posts.destroy');
@@ -114,6 +122,16 @@ Route::middleware('auth')->group(function () {
         Route::post('/{resource}/approve', [AdminAcademicResourceController::class, 'approve'])->middleware('can:resources-approve')->name('approve');
         Route::post('/{resource}/reject', [AdminAcademicResourceController::class, 'reject'])->middleware('can:resources-approve')->name('reject');
         Route::delete('/{resource}', [AdminAcademicResourceController::class, 'destroy'])->middleware('can:resources-delete')->name('destroy');
+    });
+
+    Route::prefix('admin/academic-settings')->name('admin.academic-settings.')->group(function () {
+        Route::get('/', [AcademicSettingsController::class, 'index'])->middleware('can:resources-list')->name('index');
+        Route::post('/departments', [AcademicSettingsController::class, 'storeDepartment'])->middleware('can:resources-approve')->name('departments.store');
+        Route::put('/departments/{department}', [AcademicSettingsController::class, 'updateDepartment'])->middleware('can:resources-approve')->name('departments.update');
+        Route::post('/semesters', [AcademicSettingsController::class, 'storeSemester'])->middleware('can:resources-approve')->name('semesters.store');
+        Route::put('/semesters/{semester}', [AcademicSettingsController::class, 'updateSemester'])->middleware('can:resources-approve')->name('semesters.update');
+        Route::post('/categories', [AcademicSettingsController::class, 'storeCategory'])->middleware('can:resources-approve')->name('categories.store');
+        Route::put('/categories/{category}', [AcademicSettingsController::class, 'updateCategory'])->middleware('can:resources-approve')->name('categories.update');
     });
 
     Route::prefix('admin/student-applications')->name('admin.student-applications.')->group(function () {

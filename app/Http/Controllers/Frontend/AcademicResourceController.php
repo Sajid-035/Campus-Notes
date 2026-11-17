@@ -5,21 +5,24 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicDepartment;
 use App\Models\AcademicResource;
+use App\Models\AcademicResourceCategory;
+use App\Models\AcademicSemester;
 use App\Models\ResourceReview;
 use App\Models\StudentDownload;
 use App\Models\StudentPointTransaction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class AcademicResourceController extends Controller
 {
     public function index(Request $request): View
     {
-        $resources = AcademicResource::approved()->with(['department', 'uploader'])
+        $resources = AcademicResource::approved()->with(['department', 'uploader', 'semesterOption'])->when(auth()->check(), fn ($q) => $q->withExists(['bookmarks as is_bookmarked' => fn ($b) => $b->where('users.id', auth()->id())]))
             ->when($request->filled('q'), function ($query) use ($request) {
                 $term = trim($request->string('q')->toString());
                 $query->where(function ($sub) use ($term) {
@@ -43,9 +46,10 @@ class AcademicResourceController extends Controller
 
         $resources = $resources->paginate(12)->withQueryString();
         $departments = AcademicDepartment::where('is_active', true)->withCount(['resources' => fn ($q) => $q->approved()])->orderBy('sort_order')->orderBy('name')->get();
-        $categories = $this->categories();
+        $categories = AcademicResourceCategory::active()->pluck('name');
+        $semesters = AcademicSemester::active()->get();
 
-        return view('frontend.resources.browse', compact('resources', 'departments', 'categories'));
+        return view('frontend.resources.browse', compact('resources', 'departments', 'categories', 'semesters'));
     }
 
     public function departments(): View
@@ -60,7 +64,7 @@ class AcademicResourceController extends Controller
     public function department(AcademicDepartment $department): View
     {
         abort_unless($department->is_active, 404);
-        $resources = $department->resources()->approved()->with('uploader')->latest()->paginate(12);
+        $resources = $department->resources()->approved()->with(['uploader', 'semesterOption'])->when(auth()->check(), fn ($q) => $q->withExists(['bookmarks as is_bookmarked' => fn ($b) => $b->where('users.id', auth()->id())]))->latest()->paginate(12);
         return view('frontend.resources.department', compact('department', 'resources'));
     }
 
@@ -78,7 +82,7 @@ class AcademicResourceController extends Controller
 
     private function categoryPage(Request $request, string $category, string $view): View
     {
-        $resources = AcademicResource::approved()->with(['department', 'uploader'])
+        $resources = AcademicResource::approved()->with(['department', 'uploader', 'semesterOption'])->when(auth()->check(), fn ($q) => $q->withExists(['bookmarks as is_bookmarked' => fn ($b) => $b->where('users.id', auth()->id())]))
             ->where('category', $category)
             ->when($request->filled('q'), fn ($q) => $q->where(function ($sub) use ($request) {
                 $term = trim($request->string('q')->toString());
@@ -92,17 +96,17 @@ class AcademicResourceController extends Controller
     public function show(AcademicResource $resource): View
     {
         abort_unless($resource->status === 'approved', 404);
-        $resource->load(['department', 'uploader', 'reviews.user']);
+        $resource->load(['department', 'uploader', 'reviews.user', 'semesterOption']);
         $relatedResources = AcademicResource::approved()->where('id', '!=', $resource->id)
             ->where(function ($q) use ($resource) {
                 $q->where('department_id', $resource->department_id)->orWhere('category', $resource->category);
-            })->latest()->take(4)->get();
+            })->with('semesterOption')->latest()->take(4)->get();
         $isBookmarked = auth()->check() && auth()->user()->bookmarkedResources()->whereKey($resource->id)->exists();
 
         return view('frontend.resources.show', compact('resource', 'relatedResources', 'isBookmarked'));
     }
 
-    public function download(AcademicResource $resource): RedirectResponse|StreamedResponse
+    public function download(AcademicResource $resource): RedirectResponse|BinaryFileResponse
     {
         abort_unless($resource->status === 'approved', 404);
         if (!$resource->file_path || !Storage::disk('public')->exists($resource->file_path)) {
@@ -125,7 +129,7 @@ class AcademicResourceController extends Controller
                 'description' => 'A student downloaded: ' . $resource->title,
             ]);
         }
-        return Storage::disk('public')->download($resource->file_path, $resource->file_name ?: basename($resource->file_path));
+        return response()->download(Storage::disk('public')->path($resource->file_path), $resource->file_name ?: basename($resource->file_path));
     }
 
     public function uploadForm(): View|RedirectResponse
@@ -135,7 +139,9 @@ class AcademicResourceController extends Controller
             return redirect()->route('student.application-status');
         }
         $departments = AcademicDepartment::where('is_active', true)->orderBy('name')->get();
-        return view('frontend.resources.upload', compact('departments'));
+        $semesters = AcademicSemester::active()->get();
+        $categories = AcademicResourceCategory::active()->get();
+        return view('frontend.resources.upload', compact('departments', 'semesters', 'categories'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -148,9 +154,9 @@ class AcademicResourceController extends Controller
             'title' => ['required', 'string', 'max:220'],
             'subject' => ['required', 'string', 'max:180'],
             'course_code' => ['nullable', 'string', 'max:50'],
-            'department_id' => ['required', 'exists:academic_departments,id'],
-            'semester' => ['nullable', 'integer', 'min:1', 'max:20'],
-            'category' => ['required', 'in:Class Notes,Previous Questions,Assignments,Lab Reports,Lecture Slides'],
+            'department_id' => ['required', Rule::exists('academic_departments', 'id')->where('is_active', true)],
+            'semester' => ['nullable', 'integer', Rule::exists('academic_semesters', 'number')->where('is_active', true)],
+            'category' => ['required', Rule::exists('academic_resource_categories', 'name')->where('is_active', true)],
             'description' => ['nullable', 'string', 'max:10000'],
             'document' => [$isDraft ? 'nullable' : 'required', 'file', 'mimes:pdf,doc,docx,ppt,pptx', 'max:25600'],
         ]);
@@ -197,6 +203,7 @@ class AcademicResourceController extends Controller
     public function review(Request $request, AcademicResource $resource): RedirectResponse
     {
         abort_unless($resource->status === 'approved', 404);
+        abort_if((int) $resource->uploader_id === (int) $request->user()->id, 403, 'You cannot review your own resource.');
         if ($request->user()->account_status !== 'approved') {
             return redirect()->route('student.application-status');
         }
@@ -215,8 +222,4 @@ class AcademicResourceController extends Controller
         return back()->with('success', 'Thank you. Your review has been saved.');
     }
 
-    private function categories(): array
-    {
-        return ['Class Notes', 'Previous Questions', 'Assignments', 'Lab Reports', 'Lecture Slides'];
-    }
 }

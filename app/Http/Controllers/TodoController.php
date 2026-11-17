@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 use App\Models\Todo;
+use App\Services\AdminDashboardData;
 use Illuminate\Http\Request;
 
 class TodoController extends Controller
 {
-    public function index()
+    public function index(AdminDashboardData $dashboardData)
     {
-        $todos = Todo::all();
-        return view('backend.dashboard', ['data' => $todos]);
+        return view('backend.dashboard', $dashboardData->make(request()->user()));
     }
 
     public function store(Request $request)

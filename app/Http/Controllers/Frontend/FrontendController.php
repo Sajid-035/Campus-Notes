@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicDepartment;
 use App\Models\AcademicResource;
+use App\Models\AcademicSemester;
 use Illuminate\View\View;
 
 class FrontendController extends Controller
@@ -14,14 +15,15 @@ class FrontendController extends Controller
         $departments = AcademicDepartment::where('is_active', true)
             ->withCount(['resources' => fn ($query) => $query->approved()])
             ->orderBy('sort_order')->orderBy('name')->take(8)->get();
-        $latestResources = AcademicResource::approved()->with(['department', 'uploader'])->latest()->take(4)->get();
+        $latestResources = AcademicResource::approved()->with(['department', 'uploader', 'semesterOption'])->latest()->take(4)->get();
+        $semesters = AcademicSemester::active()->get();
         $stats = [
             'students' => (int) \App\Models\User::count(),
             'resources' => (int) AcademicResource::approved()->count(),
             'downloads' => (int) AcademicResource::approved()->sum('downloads_count'),
             'departments' => (int) AcademicDepartment::where('is_active', true)->count(),
         ];
-        return view('frontend.pages.home', compact('departments', 'latestResources', 'stats'));
+        return view('frontend.pages.home', compact('departments', 'semesters', 'latestResources', 'stats'));
     }
 
     public function features(): View
@@ -46,7 +48,7 @@ class FrontendController extends Controller
 
     public function community(): View
     {
-        $latestResources = AcademicResource::approved()->with(['department', 'uploader'])->latest()->take(8)->get();
+        $latestResources = AcademicResource::approved()->with(['department', 'uploader', 'semesterOption'])->latest()->take(8)->get();
         $contributors = \App\Models\User::whereHas('academicResources', fn ($q) => $q->approved())
             ->withCount(['academicResources as approved_uploads' => fn ($q) => $q->approved()])
             ->withSum(['academicResources as total_downloads' => fn ($q) => $q->approved()], 'downloads_count')

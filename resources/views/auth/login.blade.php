@@ -17,11 +17,11 @@
             <div class="auth-feature-list">
                 <div class="auth-feature"><span class="auth-feature-icon">▤</span><span><strong>Your resources, in one place</strong><small>Notes, questions, assignments and downloads</small></span></div>
                 <div class="auth-feature"><span class="auth-feature-icon">☆</span><span><strong>Save what matters</strong><small>Bookmarks, reviews and learning activity</small></span></div>
-                <div class="auth-feature"><span class="auth-feature-icon">✓</span><span><strong>A verified student community</strong><small>Share knowledge with fellow students</small></span></div>
+                <div class="auth-feature"><span class="auth-feature-icon">✓</span><span><strong>A verified campus community</strong><small>Share knowledge with fellow students</small></span></div>
             </div>
         </div>
 
-        <div class="auth-visual-foot">© {{ date('Y') }} CampusNotes · Built by students, for students.</div>
+        <div class="auth-visual-foot">© {{ date('Y') }} CampusNotes · Built for the campus community.</div>
     </aside>
 
     <main class="auth-main">
@@ -29,7 +29,7 @@
         <section class="auth-form-wrap" aria-labelledby="login-heading">
             <span class="auth-kicker">Welcome back</span>
             <h1 class="auth-heading" id="login-heading">Sign in to CampusNotes</h1>
-            <p class="auth-subtitle">Enter your account details to continue to your resources and student dashboard.</p>
+            <p class="auth-subtitle">Enter your account details to continue to your resources and member dashboard.</p>
 
             @if($errors->any())
                 <div class="auth-error" role="alert">
@@ -62,8 +62,8 @@
                 <button class="auth-submit" type="submit">Sign in to your account&nbsp; →</button>
             </form>
 
-            <p class="auth-switch">New to CampusNotes? <a href="{{ route('register') }}">Create a student account</a></p>
-            <div class="auth-legal">Your account information is protected and used to provide your CampusNotes student services.</div>
+            <p class="auth-switch">New to CampusNotes? <a href="{{ route('register') }}">Create an account</a></p>
+            <div class="auth-legal">Your account information is protected and used to provide your CampusNotes member services.</div>
         </section>
     </main>
 </div>

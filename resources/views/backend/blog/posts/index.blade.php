@@ -22,7 +22,7 @@
         @if(session('success'))<div class="alert alert-success alert-has-icon"><div class="alert-icon"><i class="far fa-check-circle"></i></div><div class="alert-body">{{ session('success') }}</div></div>@endif
 
         <div class="row">
-            @foreach(['all'=>'All Posts','published'=>'Published','scheduled'=>'Scheduled','draft'=>'Drafts'] as $key=>$label)
+            @foreach(['all'=>'All Posts','published'=>'Published','scheduled'=>'Scheduled','draft'=>'Drafts','pending'=>'Pending Review'] as $key=>$label)
             <div class="col-6 col-md-3"><div class="card stat-card"><div class="card-body py-3"><div class="text-muted text-small">{{ $label }}</div><div class="stat-number">{{ $stats[$key] }}</div></div></div></div>
             @endforeach
         </div>
@@ -35,14 +35,14 @@
             <div class="card-body">
                 <form method="GET" class="filter-form mb-4">
                     <input type="search" name="q" value="{{ request('q') }}" class="form-control" placeholder="Search title, slug or keyphrase">
-                    <select name="status" class="form-control"><option value="">All statuses</option>@foreach(['published'=>'Published','scheduled'=>'Scheduled','draft'=>'Draft'] as $value=>$label)<option value="{{ $value }}" @selected(request('status')===$value)>{{ $label }}</option>@endforeach</select>
+                    <select name="status" class="form-control"><option value="">All statuses</option>@foreach(['pending'=>'Pending Review','published'=>'Published','scheduled'=>'Scheduled','draft'=>'Draft'] as $value=>$label)<option value="{{ $value }}" @selected(request('status')===$value)>{{ $label }}</option>@endforeach</select>
                     <select name="category" class="form-control"><option value="">All categories</option>@foreach($categories as $category)<option value="{{ $category->id }}" @selected((string)request('category')===(string)$category->id)>{{ $category->name }}</option>@endforeach</select>
                     <button class="btn btn-primary"><i class="fas fa-search"></i> Filter</button>
                     <a href="{{ route('admin.blog.posts.index') }}" class="btn btn-light">Reset</a>
                 </form>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
-                        <thead><tr><th style="min-width:280px">Post</th><th>Category</th><th>Status</th><th>SEO</th><th>Updated</th><th class="text-right">Actions</th></tr></thead>
+                        <thead><tr><th style="min-width:280px">Post</th><th>Author</th><th>Category</th><th>Status</th><th>SEO</th><th>Updated</th><th class="text-right">Actions</th></tr></thead>
                         <tbody>
                         @forelse($posts as $post)
                             <tr>
@@ -52,22 +52,27 @@
                                         <div>@can('blog-edit')<a class="post-title" href="{{ route('admin.blog.posts.edit',$post) }}">{{ $post->title }}</a>@else<strong class="post-title">{{ $post->title }}</strong>@endcan<span class="post-slug">/{{ $post->slug }}</span>@if($post->is_cornerstone)<span class="badge badge-info mt-1">Cornerstone</span>@endif</div>
                                     </div>
                                 </td>
+                                <td>{{ $post->author?->name ?? '—' }}</td>
                                 <td>{{ $post->category?->name ?? 'Uncategorized' }}</td>
                                 <td>
                                     @if($post->status==='published' || ($post->status==='scheduled' && $post->published_at && $post->published_at->isPast()))<span class="badge badge-success">Published</span>
                                     @elseif($post->status==='scheduled')<span class="badge badge-warning">Scheduled</span>
+                                    @elseif($post->status==='pending')<span class="badge badge-info">Pending Review</span>
                                     @else<span class="badge badge-secondary">Draft</span>@endif
                                 </td>
                                 <td><span class="text-muted small">{{ $post->focus_keyphrase ?: 'No keyphrase' }}</span><br><span class="text-muted small">{{ $post->robots_index ? 'Index' : 'Noindex' }} / {{ $post->robots_follow ? 'Follow' : 'Nofollow' }}</span></td>
                                 <td class="text-muted small">{{ $post->updated_at->format('d M Y') }}</td>
                                 <td class="text-right text-nowrap">
                                     @if($post->status==='published' || ($post->status==='scheduled' && $post->published_at && $post->published_at->isPast()))<a href="{{ route('blog.show',$post->slug) }}" target="_blank" class="btn btn-sm btn-light" title="View"><i class="fas fa-external-link-alt"></i></a>@endif
+                                    @can('blog-edit')
+                                    @if($post->status==='pending')<form action="{{ route('admin.blog.posts.approve',$post) }}" method="POST" class="d-inline" data-admin-confirm-title="Approve and publish blog?" data-admin-confirm="Approve and publish this blog post? It will become visible on the website.">@csrf<button class="btn btn-sm btn-success" type="submit">Approve</button></form><form action="{{ route('admin.blog.posts.reject',$post) }}" method="POST" class="d-inline" data-admin-confirm-title="Reject this blog?" data-admin-confirm="Reject this blog post? It will be returned to drafts.">@csrf<button class="btn btn-sm btn-warning" type="submit">Reject</button></form>@endif
+                                    @endcan
                                     @can('blog-edit')<a href="{{ route('admin.blog.posts.edit',$post) }}" class="btn btn-sm btn-primary" title="Edit"><i class="fas fa-edit"></i></a>@endcan
-                                    @can('blog-delete')<form action="{{ route('admin.blog.posts.destroy',$post) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this post? This cannot be undone.');">@csrf @method('DELETE')<button class="btn btn-sm btn-danger" title="Delete"><i class="fas fa-trash"></i></button></form>@endcan
+                                    @can('blog-delete')<form action="{{ route('admin.blog.posts.destroy',$post) }}" method="POST" class="d-inline" data-admin-confirm-title="Delete blog post?" data-admin-confirm="Delete this blog post permanently? This action cannot be undone.">@csrf @method('DELETE')<button class="btn btn-sm btn-danger" title="Delete"><i class="fas fa-trash"></i></button></form>@endcan
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6"><div class="empty-state"><i class="far fa-newspaper fa-3x mb-3"></i><h5>No blog posts yet</h5><p>Create your first post and optimize it for search engines.</p>@can('blog-create')<a href="{{ route('admin.blog.posts.create') }}" class="btn btn-primary">Create first post</a>@endcan</div></td></tr>
+                            <tr><td colspan="7"><div class="empty-state"><i class="far fa-newspaper fa-3x mb-3"></i><h5>No blog posts yet</h5><p>Create your first post and optimize it for search engines.</p>@can('blog-create')<a href="{{ route('admin.blog.posts.create') }}" class="btn btn-primary">Create first post</a>@endcan</div></td></tr>
                         @endforelse
                         </tbody>
                     </table>

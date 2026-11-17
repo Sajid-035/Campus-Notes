@@ -9,9 +9,12 @@
 </li>
 @endcan
 @canany(['resources-list','resources-approve','resources-delete'])
-<li class="menu-header">Academic Library</li>
+<li class="menu-header">Community Contributions</li>
 <li class="nav-item {{ Request::routeIs('admin.resources.*') ? 'active' : '' }}">
-    <a href="{{ route('admin.resources.index') }}" class="nav-link"><i class="fas fa-book-open"></i><span>Resource Moderation</span></a>
+    <a href="{{ route('admin.resources.index') }}" class="nav-link"><i class="fas fa-book-open"></i><span>User Resources</span></a>
+</li>
+<li class="nav-item {{ Request::routeIs('admin.academic-settings.*') ? 'active' : '' }}">
+    <a href="{{ route('admin.academic-settings.index') }}" class="nav-link"><i class="fas fa-sliders-h"></i><span>Academic Settings</span></a>
 </li>
 @endcan
 @canany(['blog-list','blog-create','blog-edit','blog-delete'])
@@ -36,7 +39,7 @@
 @can('user-create')<li><a class="nav-link" href="{{ route('users.create') }}">Add User</a></li>@endcan
 <li><a class="nav-link" href="{{ route('users.index') }}">User List</a></li>
 @endcan
-@can('user-list')<li><a class="nav-link" href="{{ route('admin.student-applications.index') }}">Student Applications</a></li>@endcan
+@can('user-list')<li><a class="nav-link" href="{{ route('admin.student-applications.index') }}">Member Applications</a></li>@endcan
 @canany(['role-list','role-create'])
 <li class="dropdown-header">Roles</li>
 @can('role-create')<li><a class="nav-link" href="{{ route('roles.create') }}">Add Role</a></li>@endcan
